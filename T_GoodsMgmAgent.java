@@ -5,8 +5,8 @@ public class T_GoodsMgmAgent extends GoodsMgmAgent{
 	protected int numStopIterations;
 	protected int myNumOfStop;
 	
-	public T_GoodsMgmAgent(double lamb, char var, int numVar, int numOf) {
-		super(lamb, var, numVar);
+	public T_GoodsMgmAgent(double lamb, char var, int numVar, int numOf,int type2) {
+		super(lamb, var, numVar,type2);
 		numStopIterations = numOf;
 		freeze = false;
 		myNumOfStop = 0;

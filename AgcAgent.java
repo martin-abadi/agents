@@ -2,16 +2,13 @@ import java.util.*;
 
 public class AgcAgent extends AclsAgent{
 	
-	
+	protected int Phi_t_minus_1;
+	protected int type;
 	protected double baseLine;
 	protected double firstBaseLine;
 	protected double miu_minus_1;
 	protected double miu_t;
-	protected int Phi_t_minus_1;
-	protected int type;
-	protected double lambda;
-	
-
+	protected double lambda; 
 	
 	public AgcAgent(double lamb, char var,int type2) {
 		super(var);
@@ -135,7 +132,7 @@ public class AgcAgent extends AclsAgent{
 			break;
 		}
 // 		System.out.print("Agent: " + this.getIdAgent() + ". baseLine before changing: " + baseLine+ ". miu_t: " + miu_t);
-
+//		System.out.println();
 		baseLine = miu_t*(1+lambda);
 // 		System.out.println(". baseLine AFTER: " + baseLine);
 
@@ -160,6 +157,7 @@ public class AgcAgent extends AclsAgent{
 //		+ ". my value: " + value + ". my variable: " + variable);
 		myValues.add(value);
 		anyTimeValues.add(value);
+		myAnyTimeValues.add(value);
 		if(myValues.size()>1){miu_minus_1 = miu_t;} else miu_minus_1=value;
 		miu_t = value;
 	}

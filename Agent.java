@@ -10,11 +10,14 @@ public class Agent implements Runnable{
 	protected ArrayList <Agent> myChilds;
 	protected ArrayList <MatrixContact> myMatrixs;
 	protected ArrayList <Integer> myValues;
+	protected ArrayList <Integer> myAnyTimeValues;
 	protected ArrayList <Integer> anyTimeValues;
 	protected ArrayList <Integer> anyTimeCheckList;
 	protected ArrayList <Integer> nextNeighboursValue;
+	protected ArrayList <Integer> possibleBestResponse;
 	protected ArrayList <Integer> futureGainByPossibleVariable;
 	protected ArrayList <Integer> futureValuesFromNeighbors;
+	protected ArrayList <Double> nextNeighboursSocialValue;
 	protected ArrayList <Character> myVariables;
 	protected ArrayList <Character> localView;
 	protected ArrayList <Character> nextView;
@@ -26,13 +29,16 @@ public class Agent implements Runnable{
 	protected char nextChange;
 	protected int idAgent;
 	protected int value;
+	protected int personalValue;
 	protected int nextValue;
 	protected int numOfVariablesInMatrix;
 	protected int potentialGain;
 	protected int height;
 	protected int timer;
 	protected int lowest;
+	protected int bestIteration;
 	protected static int idGlobalAgent;
+	protected double socialGain;
 	protected Agent parent;
 
 
@@ -40,6 +46,7 @@ public class Agent implements Runnable{
 		newing();
 		variable = var;
 		value = 0;
+		personalValue = 10000;
 		nextValue = 0;
 		timer = 0;
 		lowest = 0;
@@ -47,11 +54,14 @@ public class Agent implements Runnable{
 		idGlobalAgent++;
 		this.idAgent = idGlobalAgent;
 		height = 10000;
+		socialGain = 0;
+		bestIteration = 0;
 	}
 	public Agent (char var, int numVar){
 		newing();
 		variable = var;
 		value = 0;
+		personalValue = 10000;
 		nextValue = 0;
 		timer = 0;
 		lowest = 0;
@@ -59,6 +69,7 @@ public class Agent implements Runnable{
 		this.idAgent = idGlobalAgent;
 		height = 10000;
 		numOfVariablesInMatrix = numVar;
+		socialGain = 0;
 	}
 
 	private void newing(){
@@ -71,12 +82,16 @@ public class Agent implements Runnable{
 		myVariables = new ArrayList <Character>();
 		allMyViews = new ArrayList <ArrayList <Character>>();
 		myValues = new ArrayList <Integer>();
+		myAnyTimeValues = new ArrayList <Integer>();
 		anyTimeValues = new ArrayList <Integer>();
 		anyTimeCheckList = new ArrayList <Integer>();
 		nextNeighboursValue = new ArrayList <Integer>();
+		possibleBestResponse = new ArrayList <Integer>();
 		futureGainByPossibleVariable = new ArrayList <Integer>();
 		futureValuesFromNeighbors = new ArrayList <Integer>();
 		flagsCatcher = new ArrayList <Boolean>();
+		nextNeighboursSocialValue = new ArrayList <Double>();
+
 	}
 
 	public void run() {
@@ -96,6 +111,7 @@ public class Agent implements Runnable{
 //		+ ". my value: " + value + ". my variable: " + variable);
 		myValues.add(value);
 		anyTimeValues.add(value);
+		myAnyTimeValues.add(value);
 	}
 	public void sendNeighborsMyValue (){
 		nextNeighboursValue.clear();
@@ -103,7 +119,12 @@ public class Agent implements Runnable{
 			nextNeighboursValue.add(myAgents.get(i).getNextValue());
 		}
 	}
-
+	public void sendNeighborsMySocialValue (){
+		nextNeighboursSocialValue.clear();
+		for (int i=0;i<myAgents.size();i++){
+			nextNeighboursSocialValue.add(myAgents.get(i).getSocialGain());
+		}
+	}
 	public void sendNeighborsMyVariable (){
 		localView.clear();
 		for (int i=0;i<myAgents.size();i++){
@@ -157,6 +178,46 @@ public class Agent implements Runnable{
 		}
 	}
 	
+	public void bestResponse(){
+		for (int j=0;j<Starter.getNumOfVariables();j++){
+			int count = 0;
+			char trying = (char) (j + 97);
+			for (int i=0;i<myAgents.size();i++){
+				if (myAgents.get(i).getVariable()!='q'){
+					count = count + myMatrixs.get(i).getSpecificValue(trying, myAgents.get(i).getVariable());
+				}
+				else{
+					int lowest = 100000;
+					for (int k=0;k<Starter.getNumOfVariables();k++){
+						char trying2 = (char) (k + 97);
+						if (myMatrixs.get(i).getSpecificValue(trying,trying2)<lowest){
+							lowest = myMatrixs.get(i).getSpecificValue(trying,trying2);
+						}
+					}
+					count = count + lowest;
+				}
+			}
+			if (possibleBestResponse.size()<=j){
+				possibleBestResponse.add(count);
+			}
+			else{
+				possibleBestResponse.set(j,count);
+			}
+//			System.out.print(trying + " - " + count + ", ");
+		}
+		int personal = possibleBestResponse.get(0);
+		variable = (char) (0+97);
+		for (int l=1;l<Starter.getNumOfVariables();l++){
+			char trying3 = (char) (l + 97);
+			if (possibleBestResponse.get(l)<personal){
+				variable = trying3;
+				personal = possibleBestResponse.get(l);
+			}
+		}
+//		System.out.println("Agent: " + this.getIdAgent() + ". choosing variable: " + variable + ". personal value: " + personal);
+	}
+	
+	
 //---------------------------------------ANYTIME---------------------------------------------
 	public void anytiming () {
 		if (parent != null){
@@ -172,9 +233,11 @@ public class Agent implements Runnable{
 				int best = anyTimeCheckList.get(Starter.getCurrentNumOfIterations()-this.timer-1);
 				if (best<anyTimeValues.get(Starter.getCurrentNumOfIterations()-this.timer)) {
 					anyTimeCheckList.add(best);
+					bestIteration = Starter.getCurrentNumOfIterations()-this.timer;
 				}
 				else{
 					anyTimeCheckList.add(anyTimeValues.get(Starter.getCurrentNumOfIterations()-this.timer));
+					myAnyTimeValues.set(myAnyTimeValues.size()-1, myAnyTimeValues.get(myAnyTimeValues.size()-2));
 				}
 			}
 			else if (this.timer==Starter.getCurrentNumOfIterations()){
@@ -194,9 +257,11 @@ public class Agent implements Runnable{
 			int best = anyTimeCheckList.get(Starter.getCurrentNumOfIterations()+Starter.getCurrentNumOfAnytime()-this.timer-1);
 			if (best<anyTimeValues.get(Starter.getCurrentNumOfIterations()+Starter.getCurrentNumOfAnytime()-this.timer)) {
 				anyTimeCheckList.add(best);
+				bestIteration = Starter.getCurrentNumOfIterations()-this.timer;
 			}
 			else{
 				anyTimeCheckList.add(anyTimeValues.get(Starter.getCurrentNumOfIterations()+Starter.getCurrentNumOfAnytime()-this.timer));
+				myAnyTimeValues.set(myAnyTimeValues.size()-1, myAnyTimeValues.get(myAnyTimeValues.size()-2));
 			}
 		}
 	}
@@ -240,6 +305,9 @@ public class Agent implements Runnable{
 	public void setVariable() {
 		this.variable = nextVariable;
 	}
+	public ArrayList<Integer> getMyValues() {
+		return myValues;
+	}
 	public ArrayList<Integer> getAnyTimeValues() {
 		return anyTimeValues;
 	}
@@ -251,6 +319,10 @@ public class Agent implements Runnable{
 	}
 	public char getNextVariable() {
 		return nextVariable;
+	}
+	
+	public double getSocialGain() {
+		return socialGain;
 	}
 	public int getNextValue() {
 		return nextValue;
