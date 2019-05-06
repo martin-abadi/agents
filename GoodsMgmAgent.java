@@ -11,25 +11,35 @@ public class GoodsMgmAgent extends Agent {
 	protected ArrayList<ArrayList <Character>> NG_store3;
 	protected Hashtable<Character, Integer> elim;
 	protected ArrayList <Character> myVetos;
-	protected boolean backTobaseline;
 	protected Hashtable<Integer, Hashtable<Integer, Boolean>> NG_store2;
-	private int baseLine;
-	private char baseLineVariable;
-	private double lambda;
+	protected int Phi_t_minus_1;
+	protected int type;
 	protected int difference;
+	protected double baseLine;
+	protected double firstBaseLine;
+	protected double miu_minus_1;
+	protected double miu_t;
+	protected double lambda;
+	protected char baseLineVariable;
 	protected boolean flag;
+	protected boolean backTobaseline;
 
 
-	public GoodsMgmAgent(double lamb, char var,int numVar){
+
+	public GoodsMgmAgent(double lamb, char var,int numVar,int type2){
 		super(var,numVar);
-		
+		baseLine = 0;
+		firstBaseLine = 0;
+		type = type2;
+		miu_minus_1 = 0;
+		miu_t = 0;
+		Phi_t_minus_1 = 0;
 		baseLineVariable = var;
 		lambda = lamb;
 		initializeVariables();
 	}
 	private void initializeVariables() {
 //		System.out.println("Agent: " + this.getIdAgent() + ". initialize Variables");
-		baseLine = 0;
 		difference= 0;
 		flag = true;
 		backTobaseline = false;
@@ -160,6 +170,7 @@ public class GoodsMgmAgent extends Agent {
 	protected void checkImproving(){
 		if(backTobaseline){
 			nextVariable = baseLineVariable;
+			baseLine = firstBaseLine;
 		}
 		else {
 			
@@ -259,11 +270,42 @@ public class GoodsMgmAgent extends Agent {
 	public Hashtable<Integer, Hashtable<Integer, Boolean>> getNG_store2() {
 		return NG_store2;
 	}
+	public void setBaseLine(){
+// 		System.out.println("Agent: " + this.getIdAgent() + ". miu_minus_1: " + miu_minus_1 + ". num of iteration: " + Starter.getCurrentNumOfIterations());
+		int cost_St = value;
+		int c_St_minus_1 = 0;
+		if(myValues.size()>1){c_St_minus_1 = myValues.get(Starter.getCurrentNumOfIterations()-1);}
+// 		System.out.println("Agent: " + this.getIdAgent() + ". curr value: " + cost_St + ". last value: " + c_St_minus_1);
+
+		switch (type) {
+		case 1:
+			miu_t = myValues.get(0);
+            break;
+		case 2:  
+			miu_t =  value;
+            break;
+		case 3:
+			miu_t = miu_minus_1 + ((cost_St - c_St_minus_1) / (1 + lambda));
+			break;
+		case 4:
+			miu_t = miu_minus_1 + Math.min(0, ((cost_St - c_St_minus_1) / (1 + lambda)));
+			break;
+		case 5:
+			miu_t = miu_minus_1 + Math.min(0, Phi_t_minus_1*((cost_St - c_St_minus_1) / (1 + lambda)));
+			break;
+		}
+// 		System.out.print("Agent: " + this.getIdAgent() + ". baseLine before changing: " + baseLine+ ". miu_t: " + miu_t);
+//		System.out.println();
+		baseLine = miu_t*(1+lambda);
+// 		System.out.println(". baseLine AFTER: " + baseLine);
+
+	}
 	public void calculateBaseLine(){
 		initializeNG_Store();
 		initializeElim();
-		int discount = (int) (value*lambda);
+		double discount = (value*lambda);
 		baseLine = value + discount;
+		firstBaseLine = baseLine;
 		//		System.out.println("Agent: " + this.getIdAgent() + ". baseLine: " + baseLine);
 	}
 }
