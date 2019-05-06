@@ -2,16 +2,15 @@ import java.util.*;
 
 public class AgcAgent extends AclsAgent{
 	
-	
+	protected int Phi_t_minus_1;
+	protected int type;
 	protected double baseLine;
 	protected double firstBaseLine;
 	protected double miu_minus_1;
 	protected double miu_t;
-	protected int Phi_t_minus_1;
-	protected int type;
 	protected double lambda;
-	
-
+	protected double epsilon;
+	protected double epsilonStep;
 	
 	public AgcAgent(double lamb, char var,int type2) {
 		super(var);
@@ -22,6 +21,8 @@ public class AgcAgent extends AclsAgent{
 		miu_minus_1 = 0;
 		miu_t = 0;
 		Phi_t_minus_1 = 0;
+		epsilon = 0.5;
+		epsilonStep = 0.1;
 	}
 	
 	public void calculateBaseLine(){
@@ -111,12 +112,16 @@ public class AgcAgent extends AclsAgent{
 	}
 	
 	public void setBaseLine(){
-// 		System.out.println("Agent: " + this.getIdAgent() + ". miu_minus_1: " + miu_minus_1 + ". num of iteration: " + Starter.getCurrentNumOfIterations());
+//		if(idAgent==6){
+//			System.out.println("Agent: " + this.getIdAgent() + ". miu_minus_1: " + miu_minus_1 + ". num of iteration: " + Starter.getCurrentNumOfIterations());
+//		}
 		int cost_St = value;
 		int c_St_minus_1 = 0;
 		if(myValues.size()>1){c_St_minus_1 = myValues.get(Starter.getCurrentNumOfIterations()-1);}
-// 		System.out.println("Agent: " + this.getIdAgent() + ". curr value: " + cost_St + ". last value: " + c_St_minus_1);
-
+		else {c_St_minus_1=cost_St;}
+//		if(idAgent==6){
+//			System.out.println("Agent: " + this.getIdAgent() + ". curr value: " + cost_St + ". last value: " + c_St_minus_1);
+//		}
 		switch (type) {
 		case 1:
 			miu_t = myValues.get(0);
@@ -133,14 +138,46 @@ public class AgcAgent extends AclsAgent{
 		case 5:
 			miu_t = miu_minus_1 + Math.min(0, Phi_t_minus_1*((cost_St - c_St_minus_1) / (1 + lambda)));
 			break;
+		case 6:
+			miu_t = miu_minus_1 + (((cost_St - c_St_minus_1) / (1 + lambda))*epsilon);
+			updateEpsilonPolicy (cost_St,c_St_minus_1);
+			break;
+		case 7:
+			miu_t = miu_minus_1 + Math.min(0, Phi_t_minus_1*((cost_St - c_St_minus_1) / (1 + lambda)));
+			break;
 		}
+//		if(idAgent==6){
 // 		System.out.print("Agent: " + this.getIdAgent() + ". baseLine before changing: " + baseLine+ ". miu_t: " + miu_t);
-
+//		System.out.println();
+//		}
 		baseLine = miu_t*(1+lambda);
-// 		System.out.println(". baseLine AFTER: " + baseLine);
-
+ 		
+//		if(idAgent==6){
+//			System.out.println(". baseLine AFTER: " + baseLine);
+//		}
 	}
-	
+	private void updateEpsilonPolicy (int cost_St, int c_St_minus_1){
+		if (cost_St > c_St_minus_1){
+			if(!(epsilon - epsilonStep<0)){
+				epsilon = epsilon - epsilonStep;
+			}
+		}
+		else if (cost_St < c_St_minus_1){
+			if(!(epsilon + epsilonStep>1)){
+				epsilon = epsilon + epsilonStep;
+			}
+		}
+	}
+	public void setEpsilon(double epsi){
+		if (epsi>=0 && epsi<=1){
+			epsilon = epsi;
+		}
+	}
+	public void setEpsilonStep(double epsiSt){
+		if (epsiSt>=0 && epsiSt<=1){
+			epsilonStep = epsiSt;
+		}
+	}
 	
 	public void setVariable (){
 		Phi_t_minus_1 = 0;
@@ -160,6 +197,7 @@ public class AgcAgent extends AclsAgent{
 //		+ ". my value: " + value + ". my variable: " + variable);
 		myValues.add(value);
 		anyTimeValues.add(value);
+		myAnyTimeValues.add(value);
 		if(myValues.size()>1){miu_minus_1 = miu_t;} else miu_minus_1=value;
 		miu_t = value;
 	}
