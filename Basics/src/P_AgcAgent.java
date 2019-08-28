@@ -12,7 +12,7 @@ public class P_AgcAgent extends SM_AgcAgent{
 	protected String privateType;
 	protected boolean valueHasChanged;
 	protected int theLastChanger;
-	
+	//new private
 	public P_AgcAgent(double lamb, char var, int type2,boolean tab,String weight,String pType) {
 		super(lamb, var, type2, tab, weight);
 		lastModification = new ArrayList<Double> ();
