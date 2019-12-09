@@ -52,6 +52,12 @@ public class IS_AgcAgent extends SM_AgcAgent{
 			}
 		}
 	}
+	public void blala (){
+		int a = 5;
+		if (a<3){
+			
+		}
+	}
 	public void sendNeighborsMyVariable (){
 		updateLastChange();
 		localView.clear();
