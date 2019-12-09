@@ -1,25 +1,29 @@
+
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
 
-public class P_AgcAgent extends SM_AgcAgent{
-	
+public class IS_AgcAgent extends SM_AgcAgent{
+
 	protected ArrayList<Double> lastModification;
 	protected ArrayList<Double> previousLastModification;
 	protected ArrayList<Double> ungryNormalized;
 	protected ArrayList<Double> personalBudget;
-	protected ArrayList<Double> personalLambda;
+	protected ArrayList<ArrayList <Double>> allPersonalLambda;
+	protected ArrayList<Double> personalLambdaBeginning;
 	protected String privateType;
 	protected boolean valueHasChanged;
 	protected int theLastChanger;
 	//new private
-	public P_AgcAgent(double lamb, char var, int type2,boolean tab,String weight,String pType) {
+	public IS_AgcAgent(double lamb, char var, int type2,boolean tab,String weight,String pType) {
 		super(lamb, var, type2, tab, weight);
 		lastModification = new ArrayList<Double> ();
 		previousLastModification = new ArrayList<Double> ();
 		ungryNormalized = new ArrayList<Double> ();
 		personalBudget = new ArrayList<Double> ();
-		personalLambda = new ArrayList<Double> ();
+		personalLambdaBeginning = new ArrayList<Double> ();
+		allPersonalLambda = new ArrayList<ArrayList <Double>> ();
 		theLastChanger = 1000;
 		valueHasChanged = false;
 		privateType = pType;
@@ -35,13 +39,16 @@ public class P_AgcAgent extends SM_AgcAgent{
 					char trying = (char) (j + 97);
 					vote_messages.get(i).put(trying, 0);
 				}
+				ArrayList <Double> c = new ArrayList <Double> ();
+				allPersonalLambda.add(c);
 			}
 			for (int i=0;i<myAgents.size();i++){
 				lastModification.add(0.0);
 				previousLastModification.add(0.0);
 				personalBudget.add(0.0);
 				ungryNormalized.add(0.0);
-				personalLambda.add(1.0);
+				personalLambdaBeginning.add(1.0);		// change row  -----------------------
+				allPersonalLambda.get(i).set(0, 1.0);   // change the 1.0  -------------------
 			}
 		}
 	}
@@ -63,10 +70,10 @@ public class P_AgcAgent extends SM_AgcAgent{
 					double differenceOfModification = myValues.get(Starter.getCurrentNumOfIterations()-1)-myValues.get(Starter.getCurrentNumOfIterations());
 					double normalizedDifference = differenceOfModification/myValues.get(Starter.getCurrentNumOfIterations()-1);
 					double normalaizedLambda = (1+lambda+normalizedDifference)/(1+lambda);
-					personalLambda.set(i,normalaizedLambda);
+					personalLambdaBeginning.set(i,normalaizedLambda);
 					// negative difference is bad!!
-//					System.out.println("Agent: " + this.getIdAgent() + ". Last value change: " + differenceOfModification + ". Made by agent no. " + myAgents.get(i).getIdAgent());
-					
+//						System.out.println("Agent: " + this.getIdAgent() + ". Last value change: " + differenceOfModification + ". Made by agent no. " + myAgents.get(i).getIdAgent());
+
 					if(lastModification.get(i) + differenceOfModification<0) {
 						if (differenceOfModification<0 && lastModification.get(i)>0) { // is a new hurt
 							lastModification.set(i,differenceOfModification);
@@ -89,9 +96,9 @@ public class P_AgcAgent extends SM_AgcAgent{
 			makePrivatePolicy();
 		}
 	}
-	
+
 	private void makePrivatePolicy(){
-//		System.out.print("Agent: " + this.getIdAgent() + ". My value: " + value + ". My Baseline: " +baseLine+ ". Personal Baselines: ");
+//			System.out.print("Agent: " + this.getIdAgent() + ". My value: " + value + ". My Baseline: " +baseLine+ ". Personal Baselines: ");
 		for (int i=0;i<myAgents.size();i++){
 			switch (privateType) {
 			case "portion":
@@ -101,11 +108,11 @@ public class P_AgcAgent extends SM_AgcAgent{
 				normalizedType(i);
 				break;
 			}
-//			System.out.print(personalBudget.get(i)+", ");
+//				System.out.print(personalBudget.get(i)+", ");
 		}
-//		System.out.println();
+//			System.out.println();
 	}
-	
+
 	private void portionType(int i) {
 		if(lastModification.get(i)<0){
 			personalBudget.set(i, baseLine+lastModification.get(i));
@@ -115,7 +122,7 @@ public class P_AgcAgent extends SM_AgcAgent{
 		}
 	}
 	private void normalizedType(int i) {
-		personalBudget.set(i, baseLine*personalLambda.get(i));		
+		personalBudget.set(i, baseLine*personalLambdaBeginning.get(i));		
 	}
 	public void makePreferenceForNeighbours(){
 		if (taboo){
@@ -125,52 +132,52 @@ public class P_AgcAgent extends SM_AgcAgent{
 			vote_preference();
 		}
 	}
-	
+
 	protected void taboo_preference(){
 		if (localView.size()>0)	{
 			for (int i=0;i<myAgents.size();i++){
-//				System.out.print("Agent: " + this.getIdAgent() + ". To agent: " + myAgents.get(i).getIdAgent() + ". TABOO: ");
+				//					System.out.print("Agent: " + this.getIdAgent() + ". To agent: " + myAgents.get(i).getIdAgent() + ". TABOO: ");
 				ArrayList <Character> my_taboos =  new ArrayList <Character> ();
 				for (int j=0;j<Starter.getNumOfVariables();j++){
 					char trying = (char) (j + 97);
 					int between = myMatrixs.get(i).getSpecificValue(this.variable, trying)-myMatrixs.get(i).getSpecificValue(this.variable, localView.get(i));
 					if(value+between>personalBudget.get(i)){
 						my_taboos.add(trying);
-//						System.out.print(trying + ", ");
+//							System.out.print(trying + ", ");
 					}
 				}
 				((SM_AgcAgent)myAgents.get(i)).setTaboo_messages(my_taboos,this);
-//				System.out.println();
+//					System.out.println();
 			}
 		}
 	}
 
 	public void sendNeighborsMyValidation (){
 		validatePersonalOffers();
-		
+
 		if(myAgents.size()>0){
-		int index = nextSocialValue.indexOf(Collections.max(nextSocialValue));
-		int costFrom2 = (myMatrixs.get(index).getSpecificValue(this.variable, nextView.get(index))-myMatrixs.get(index).getSpecificValue(this.variable, localView.get(index)));
-		
-//		System.out.println("Agent: " + this.getIdAgent() + ". To neighbor maybe winner: " + myAgents.get(index).getIdAgent() + ". my candidate: " + this.socialGain
-//		+ ". matrix location: " + this.variable + ", " + nextView.get(index)+ ". his improve: " + nextSocialValue.get(index)) ;
-		for (int i=0;i<myAgents.size();i++){
-			if(i==index){
-				if (nextSocialValue.get(index)<this.socialGain){
-					myAgents.get(i).getFlagsCatcher().add(false);
-//					System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent() + ". my candidate: " + this.socialGain
-//					+ ". BETTER THAN HIS VALUE: " + nextSocialValue.get(i));
+			int index = nextSocialValue.indexOf(Collections.max(nextSocialValue));
+			int costFrom2 = (myMatrixs.get(index).getSpecificValue(this.variable, nextView.get(index))-myMatrixs.get(index).getSpecificValue(this.variable, localView.get(index)));
+
+//			System.out.println("Agent: " + this.getIdAgent() + ". To neighbor maybe winner: " + myAgents.get(index).getIdAgent() + ". my candidate: " + this.socialGain
+//			+ ". matrix location: " + this.variable + ", " + nextView.get(index)+ ". his improve: " + nextSocialValue.get(index)) ;
+			for (int i=0;i<myAgents.size();i++){
+				if(i==index){
+					if (nextSocialValue.get(index)<this.socialGain){
+						myAgents.get(i).getFlagsCatcher().add(false);
+//						System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent() + ". my candidate: " + this.socialGain
+//						+ ". BETTER THAN HIS VALUE: " + nextSocialValue.get(i));
+					}
+					else {
+						flagsCatcher.add(false);
+					}
 				}
-				else {
-					flagsCatcher.add(false);
+				else{
+					myAgents.get(i).getFlagsCatcher().add(false);		
+//					System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent()
+//					+ ". no validation from me.");
 				}
 			}
-			else{
-				myAgents.get(i).getFlagsCatcher().add(false);		
-//				System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent()
-//				+ ". no validation from me.");
-			}
-		}
 		}
 	}
 	private void validatePersonalOffers (){
@@ -178,29 +185,29 @@ public class P_AgcAgent extends SM_AgcAgent{
 			int costFrom1 = (myMatrixs.get(i).getSpecificValue(this.variable, nextView.get(i))-myMatrixs.get(i).getSpecificValue(this.variable, localView.get(i)));
 			if (value+costFrom1>personalBudget.get(i)){
 				nextSocialValue.set(i, -1.0);
-//				System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent() + ". AUCH, YOU HEART ME.");
+//					System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent() + ". AUCH, YOU HEART ME.");
 			}
 		}
 	}
-	
+
 	public void setBaseLine(){
-//		if(idAgent==6){
-//			System.out.println("Agent: " + this.getIdAgent() + ". miu_minus_1: " + miu_minus_1 + ". num of iteration: " + Starter.getCurrentNumOfIterations());
-//		}
+//			if(idAgent==6){
+//				System.out.println("Agent: " + this.getIdAgent() + ". miu_minus_1: " + miu_minus_1 + ". num of iteration: " + Starter.getCurrentNumOfIterations());
+//			}
 		int cost_St = value;
 		int c_St_minus_1 = 0;
 		if(myValues.size()>1){c_St_minus_1 = myValues.get(Starter.getCurrentNumOfIterations()-1);}
 		else {c_St_minus_1=cost_St;}
-//		if(idAgent==6){
-//			System.out.println("Agent: " + this.getIdAgent() + ". curr value: " + cost_St + ". last value: " + c_St_minus_1);
-//		}
+//			if(idAgent==6){
+//				System.out.println("Agent: " + this.getIdAgent() + ". curr value: " + cost_St + ". last value: " + c_St_minus_1);
+//			}
 		switch (type) {
 		case 1:
 			miu_t = myValues.get(0);
-            break;
+			break;
 		case 2:  
 			miu_t =  value;
-            break;
+			break;
 		case 3:
 			miu_t = miu_minus_1 + ((cost_St - c_St_minus_1) / (1 + lambda));
 			break;
@@ -213,7 +220,7 @@ public class P_AgcAgent extends SM_AgcAgent{
 		case 6:
 			if(cost_St > c_St_minus_1) {
 				miu_t = miu_minus_1 + (((cost_St - c_St_minus_1) / (1 + lambda))*epsilon);
-				
+
 			}
 			else {
 				miu_t = miu_minus_1 + (((cost_St - c_St_minus_1) / (1 + lambda))*(1-epsilon));
@@ -224,15 +231,15 @@ public class P_AgcAgent extends SM_AgcAgent{
 			miu_t = miu_minus_1 + Math.min(0, Phi_t_minus_1*((cost_St - c_St_minus_1) / (1 + lambda)));
 			break;
 		}
-//		if(idAgent==6){
-// 		System.out.print("Agent: " + this.getIdAgent() + ". baseLine before changing: " + baseLine+ ". miu_t: " + miu_t);
-//		System.out.println();
-//		}
+//			if(idAgent==6){
+//	 		System.out.print("Agent: " + this.getIdAgent() + ". baseLine before changing: " + baseLine+ ". miu_t: " + miu_t);
+//			System.out.println();
+//			}
 		baseLine = miu_t*(1+lambda);
-	
-//		if(idAgent==6){
-//			System.out.println(". baseLine AFTER: " + baseLine);
-//		}
+
+//			if(idAgent==6){
+//				System.out.println(". baseLine AFTER: " + baseLine);
+//			}
 	}
 
 	protected void updateEpsilonPolicy (int cost_St, int c_St_minus_1){
@@ -248,3 +255,5 @@ public class P_AgcAgent extends SM_AgcAgent{
 		}
 	}
 }
+
+

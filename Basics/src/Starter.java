@@ -57,9 +57,10 @@ public class Starter {
 
 
 	public static void main(String[] args) {
-//		runAllTypesAmountRange();		
+//		runAllTypesAmountRange();
+		runAllTypes();
 //		runAllTypesWithOneDifferent();
-		runNormalOnce();
+//		runNormalOnce();
 	}
 
 	private static void allNew (){
@@ -85,7 +86,7 @@ public class Starter {
 		algorythmType = "p_agc";	// dsa, dsa-a,dsa-b, mgm, dba, acls, mcs-mgm, gca-mgm, goods-mgm, agc, sm_agc, p_agc
 		socialVoteType = "cost";	// none, cost or binary
 		personalType = "normalized"; // portion, normalized
-		additionName = personalType;
+		additionName = "";
 		vetorsAllNew();
 	}
 	private static void vetorsAllNew (){
@@ -123,7 +124,63 @@ public class Starter {
 		additionName = "step 0.1-portion";
 		vetorsAllNew();
 	}
-	
+	private static void runAllTypes() {
+		for (int k = 1; k<8;k++){				// k for type number, 6 needs step 0.1 and 0.25
+			for (int s = 0; s < 6; s++){		// s for algorithm
+				for (int i = 1; i < 7; i++){	// i for communication
+					if (true){
+						allNew();
+						parametersAllTypes(i,s,k);
+
+						if(k==6) {additionName = "step 0.1-";}
+						else if(k==7) {additionName = "step 0.25-";}
+						else {additionName = "";}
+						nameOFPrint = createName(additionName);
+
+//						allNew();
+						for (currentNumOfRun =1;currentNumOfRun<=numOfRuns;currentNumOfRun++){
+							resetAll();
+							createAgents(algorythmType);
+							makeNeighbours();
+/**/						buildAnytimeStructer();
+							activateBestResponse();
+							checkCurrentValue ();
+							runAlgorythm(algorythmType);
+//							keepAgentsInformation(nameOFPrint);
+/**/						finishAnytime();
+						}
+						printAnytime(nameOFPrint);
+					}
+				}
+			}
+		}		
+	}
+private static void parametersAllTypes (int i, int s, int k){
+		
+		if (i==1){algorythmType="agc";socialVoteType = "none";tabooVote = false;}
+		else if (i==2){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = false;}
+		else if (i==3){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = true;}
+		else if (i==4){algorythmType="sm_agc";socialVoteType = "cost";tabooVote = false;}
+		else if (i==5){algorythmType="sm_agc";socialVoteType = "cost";tabooVote = true;}
+		else if (i==6){algorythmType="sm_agc";socialVoteType = "none";tabooVote = true;}
+		
+		
+		if (s==0){lambda = 0.8;}
+		else if (s==1){lambda = 0.8; algorythmType="p_agc"; personalType = "portion";}// portion, normalized
+		else if (s==2){lambda = 0.8; algorythmType="p_agc"; personalType = "normalized";}
+		else if (s==3){lambda = 0.1;}
+		else if (s==4){lambda = 0.1; algorythmType="p_agc"; personalType = "portion";}// portion, normalized
+		else if (s==5){lambda = 0.1; algorythmType="p_agc"; personalType = "normalized";}
+		
+		//epsilonStep
+		if (k==1){type2 = 1;}
+		else if (k==2){type2 = 2;}
+		else if (k==3){type2 = 3;}
+		else if (k==4){type2 = 4;}
+		else if (k==5){type2 = 5;}
+		else if (k==6){type2 = 6; epsilonStep=0.1;}
+		else if (k==7){type2 = 6; epsilonStep=0.25;}
+	}
 	private static void runNormalOnce() {
 		allNewForOne();
 		for (currentNumOfRun =1;currentNumOfRun<=numOfRuns;currentNumOfRun++){
@@ -205,6 +262,8 @@ public class Starter {
 			}
 		}		
 	}
+
+	
 
 	private static void resetAll(){
 		allAgents = new ArrayList<Agent>();
@@ -744,6 +803,7 @@ public class Starter {
 	}
 	public static String createName (String addition){
 		String ans = "";
+		String add = addition;
 		if (algorythmType=="sm_agc"){
 			if(tabooVote==false && socialVoteType == "binary") ans = "SM_AGC_BI-";
 			else if (tabooVote==false && socialVoteType == "cost") ans = "SM_AGC_CI-";
@@ -761,13 +821,16 @@ public class Starter {
 		else if (algorythmType=="p_agc"){
 			if(tabooVote==false && socialVoteType == "binary") ans = "P_AGC_BI-";
 			else if (tabooVote==false && socialVoteType == "cost") ans = "P_AGC_CI-";
+			else if (tabooVote==false && socialVoteType == "none") ans = "P_AGC-";
 			else if (tabooVote==true && socialVoteType != "cost" && socialVoteType != "binary") ans = "P_AGC_T-";
 			else if(tabooVote==true && socialVoteType == "binary") ans = "P_AGC_T_BI-";
 			else if (tabooVote==true && socialVoteType == "cost") ans = "P_AGC_T_CI-";
+			add = add+personalType+"-";
 		}
+		//P_AGC_T_CI-0.8-5-normalized-
 		else ans = algorythmType + "-";
 		ans = ans + lambda + "-" + type2;
-		if (addition!=""){ ans = ans + "-" + addition;}
+		if (add!=""){ ans = ans + "-" + add;}
 		return ans;
 	}
 	public static void finishAnytime(){
@@ -839,11 +902,7 @@ public class Starter {
 		return currentNumOfAnytime;
 	}
 	private static void parametersOneDifferentChange (int i,int s, int k){
-		if (s==0){lambda = 0.8;differentAgent = 0.8;}
-		else if (s==1){lambda = 0.8;differentAgent = 0.1;}
-		else if (s==2){lambda = 0.1;differentAgent = 0.1;}
-		else if (s==3){lambda = 0.1;differentAgent = 0.8;}
-
+		
 		if (i==1){algorythmType="agc";}
 		else if (i==2){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = false;}
 		else if (i==3){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = true;}
@@ -851,6 +910,11 @@ public class Starter {
 		else if (i==5){algorythmType="sm_agc";socialVoteType = "cost";tabooVote = true;}
 		else if (i==6){algorythmType="sm_agc";socialVoteType = "none";tabooVote = true;}
 		
+		if (s==0){lambda = 0.8;differentAgent = 0.8;}
+		else if (s==1){lambda = 0.8;differentAgent = 0.1;}
+		else if (s==2){lambda = 0.1;differentAgent = 0.1;}
+		else if (s==3){lambda = 0.1;differentAgent = 0.8;}
+
 		if (k==1){type2 = 1;}
 		else if (k==2){type2 = 2;}
 		else if (k==3){type2 = 3;}
@@ -859,11 +923,9 @@ public class Starter {
 		else if (k==6){type2 = 6;}
 	}
 	
+	
 	private static void parametersAmountDifferentChange(int i, int s, int k) {
-		if (s<6){amountOfDifferents=s;}
-		else if (s>5 && s<23){amountOfDifferents = (s-4)*5;}
-		else if (s>22){amountOfDifferents = 72 + s ;}
-
+		
 		if (i==1){algorythmType="agc";}
 		else if (i==2){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = false;}
 		else if (i==3){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = true;}
@@ -871,6 +933,10 @@ public class Starter {
 		else if (i==5){algorythmType="sm_agc";socialVoteType = "cost";tabooVote = true;}
 		else if (i==6){algorythmType="sm_agc";socialVoteType = "none";tabooVote = true;}
 		
+		if (s<6){amountOfDifferents=s;}
+		else if (s>5 && s<23){amountOfDifferents = (s-4)*5;}
+		else if (s>22){amountOfDifferents = 72 + s ;}
+
 		if (k==1){type2 = 1;}
 		else if (k==2){type2 = 2;}
 		else if (k==3){type2 = 3;}
