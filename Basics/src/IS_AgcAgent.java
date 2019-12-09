@@ -15,9 +15,12 @@ public class IS_AgcAgent extends SM_AgcAgent{
 	protected String privateType;
 	protected boolean valueHasChanged;
 	protected int theLastChanger;
+	int sebi = 4;
+	protected int rererere = 5;
 	//new private
 	public IS_AgcAgent(double lamb, char var, int type2,boolean tab,String weight,String pType) {
 		super(lamb, var, type2, tab, weight);
+		sebi = 5;
 		lastModification = new ArrayList<Double> ();
 		previousLastModification = new ArrayList<Double> ();
 		ungryNormalized = new ArrayList<Double> ();
