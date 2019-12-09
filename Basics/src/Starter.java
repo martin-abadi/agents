@@ -59,14 +59,10 @@ public class Starter {
 	public static void main(String[] args) {
 //		runAllTypesAmountRange();
 		runAllTypes();
-		int a = 5;
-		fefe();
 //		runAllTypesWithOneDifferent();
 //		runNormalOnce();
 	}
-	public static void fefe(){
-		
-	}
+
 	private static void allNew (){
 		tabooVote = true;
 		symmetric = false;
