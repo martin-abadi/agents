@@ -53,6 +53,8 @@ public class Starter {
 	private static String nameOFPrint;			// name of csv file output
 	private static String socialVoteType;		// none, cost or binary
 	private static String personalType;			// portion, normalized
+	private static String deltaType;			// indicator, lam_zero
+	private static String lambdaType;			// only_change, offer
 	private static String additionName;			// addition name for csv file output
 	private static final String COMMA_DELIMITER = ",";
 	private static final String NEW_LINE_SEPARATOR = "\n";
@@ -92,6 +94,8 @@ public class Starter {
 		personalType = "normalized"; 	// portion, normalized
 		additionName = "";
 		lambdaSpreadType = "all_same";	// all_same, prior, uniform
+		deltaType = "indicator";			// indicator, lam_zero
+		lambdaType = "only_change";			// only_change, offer
 		vetorsAllNew();
 	}
 	private static void vetorsAllNew (){
