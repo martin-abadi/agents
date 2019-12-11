@@ -15,13 +15,14 @@ public class IS_AgcAgent extends SM_AgcAgent{
 	protected ArrayList<Double> deltaOfIteration;
 	protected ArrayList<Double> personalBudget;
 	protected String individualSubjectiveType;
+	protected String labmdaIndicatorType;
 	protected boolean valueHasChanged;
 	protected int theLastChanger;
 	protected double lambdaUB;
 	protected double gamma;							// opposite to weight of history
 	
 	//new private
-	public IS_AgcAgent(double lamb, char var, int type2,boolean tab,String weight,String is_Type,double gama,double lamUB) {
+	public IS_AgcAgent(double lamb, char var, int type2,boolean tab,String weight,String is_Type,String lam_Type,double gama,double lamUB) {
 		super(lamb, var, type2, tab, weight);
 		allPersonalLambda = new ArrayList<ArrayList <Double>> ();
 		previousLastModification = new ArrayList<Double> ();
@@ -32,10 +33,12 @@ public class IS_AgcAgent extends SM_AgcAgent{
 		deltaOfIteration = new ArrayList<Double> ();
 		personalBudget = new ArrayList<Double> ();
 		individualSubjectiveType = is_Type;
+		labmdaIndicatorType = lam_Type;
 		valueHasChanged = false;
 		theLastChanger = 1000;
 		lambdaUB = lamUB;
 		gamma = gama;
+		
 	}
 	public void initializeArrayMessages(){
 		if(myAgents.size()>0){
@@ -112,21 +115,36 @@ public class IS_AgcAgent extends SM_AgcAgent{
 					// positive difference is bad!!
 //						System.out.println("Agent: " + this.getIdAgent() + ". Last value change: " + differenceOfModification + ". Made by agent no. " + myAgents.get(i).getIdAgent());
 			}
-				makePrivatePolicy(i,normalizedDifference);
+				makePrivateDelta(i,normalizedDifference);
+				makePrivateLambda(i,valueHasChanged);
 			}
 		}
 	}
-
-	private void makePrivatePolicy(int ag, double deltaNew){
+	private void makePrivateLambda(int ag, boolean hasCh){
+		double lastLambda = individualLambda.get(ag);
+		double newLambda = 0.0;
+		switch (labmdaIndicatorType) {
+		case "indicator":
+			if(hasCh) newLambda = lastLambda-deltaOfIteration.get(ag);		// indicator if there was a change
+			else newLambda = lastLambda;
+			break;
+		case "lam_zero":
+			newLambda = personalLambdaBeginning.get(ag) - deltaOfIteration.get(ag);		// look at first lambda of iteration zero
+			break;
+		}
+		individualLambda.set(ag,newLambda);
+		allPersonalLambda.get(ag).add(newLambda);  // enter lambda to archive
+	}
+	private void makePrivateDelta(int ag, double deltaNew){
 //			System.out.print("Agent: " + this.getIdAgent() + ". My value: " + value + ". My Baseline: " +baseLine+ ". Personal Baselines: ");
 		double lastDelta = deltaOfIteration.get(ag);
 		double newDelta = 0.0;
 		switch (individualSubjectiveType) {
-		case "indicator":
+		case "only_change":
 			newDelta = gamma*deltaNew + (1-gamma)*lastDelta;
 			break;
 		case "offer":
-
+			newDelta = gamma*copyOfNextValueOffer.get(ag) + (1-gamma)*lastDelta;
 			break;
 		}
 		deltaOfIteration.set(ag, newDelta);
@@ -188,10 +206,9 @@ public class IS_AgcAgent extends SM_AgcAgent{
 		}
 	}
 	private void validatePersonalOffers (){
-		copyOfNextValueOffer.clear();
 		for (int i=0;i<myAgents.size();i++){
 			int costFrom1 = (myMatrixs.get(i).getSpecificValue(this.variable, nextView.get(i))-myMatrixs.get(i).getSpecificValue(this.variable, localView.get(i)));
-			copyOfNextValueOffer.add((double) (costFrom1/value));
+			copyOfNextValueOffer.set(i,(double) (costFrom1/value));
 			if (value+costFrom1>personalBudget.get(i)){
 				nextSocialValue.set(i, -1.0);
 //					System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent() + ". AUCH, YOU HEART ME.");
