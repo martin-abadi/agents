@@ -11,7 +11,7 @@ import java.util.List;
 
 
 public class Starter {
-
+								// parameters
 	private static ArrayList <Agent> allAgents;
 	private static ArrayList <Agent> queue;
 	private static ArrayList<ArrayList <Integer>> costPerRun;
@@ -24,33 +24,36 @@ public class Starter {
 	private static ArrayList <MatrixContact> allMatrix;
 	private static Random random;
 	private static Random randomType;
-	private static int type2;
-	private static int theParent;
+	private static Random randomIndiType;
+	private static int type2;					// agent type
+	private static int theParent;				// any-time root
 	private static int numOfAgents;
 	private static int numOfVariables;
 	private static int numOfIterations;
 	public static int numOfRuns;
 	private static int numOfFreeze;
 	private static int amountOfDifferents;
-	private static int constrainsUB;
+	private static int constrainsUB;			// upper bound of cost in a matrix
 	private static int currentNumOfIterations;
 	private static int currentNumOfAnytime;
 	private static int currentNumOfRun;
-	private static double p1;
-	private static double p2;
+	private static double p1;					// percent of neighbors
+	private static double p2;					// percent of zeros in a matrix
 	private static double p3;
 	private static double p4;
 	private static double lambda;
+	private static double lambdaUB;				// upper bound for lambda uniform spreading
 	private static double differentAgent;
 	private static double epsilonStep;
-	private static boolean symmetric;
+	private static boolean symmetric;			// symmetric or asymmetric problems
 	private static boolean tabooVote;
-	private static boolean bestResponse;
-	private static String algorythmType;
-	private static String nameOFPrint;
-	private static String socialVoteType;
-	private static String personalType;
-	private static String additionName;
+	private static boolean bestResponse;		
+	private static String algorythmType;		// 
+	private static String lambdaSpreadType;		// all_same, prior, union
+	private static String nameOFPrint;			// name of csv file output
+	private static String socialVoteType;		// none, cost or binary
+	private static String personalType;			// portion, normalized
+	private static String additionName;			// addition name for csv file output
 	private static final String COMMA_DELIMITER = ",";
 	private static final String NEW_LINE_SEPARATOR = "\n";
 	public static int anytimeHeight;
@@ -58,9 +61,9 @@ public class Starter {
 
 	public static void main(String[] args) {
 //		runAllTypesAmountRange();
-		runAllTypes();
+//		runAllTypes();
 //		runAllTypesWithOneDifferent();
-//		runNormalOnce();
+		runNormalOnce();
 	}
 
 	private static void allNew (){
@@ -80,13 +83,15 @@ public class Starter {
 		p4 = 0.5;
 		epsilonStep = 0.1;
 		lambda = 0.8;
+		lambdaUB = 0.5;
 		differentAgent = 0.1;
 		type2 = 1;
-		theParent = 5;			// 28,5
-		algorythmType = "p_agc";	// dsa, dsa-a,dsa-b, mgm, dba, acls, mcs-mgm, gca-mgm, goods-mgm, agc, sm_agc, p_agc
-		socialVoteType = "cost";	// none, cost or binary
-		personalType = "normalized"; // portion, normalized
+		theParent = 5;					// 28,5
+		algorythmType = "p_agc";		// dsa, dsa-a,dsa-b, mgm, dba, acls, mcs-mgm, gca-mgm, goods-mgm, agc, sm_agc, p_agc
+		socialVoteType = "cost";		// none, cost or binary
+		personalType = "normalized"; 	// portion, normalized
 		additionName = "";
+		lambdaSpreadType = "all_same";	// all_same, prior, uniform
 		vetorsAllNew();
 	}
 	private static void vetorsAllNew (){
@@ -96,15 +101,18 @@ public class Starter {
 		costPerRunOfDifferentNeighbors = new ArrayList<ArrayList<Integer>>();
 		random = new Random();
 		randomType = new Random();
+		randomIndiType = new Random();
 		nameOFPrint = createName(additionName);
 	}
 	private static void allNewForOne (){
-		lambda = 0.8;
+		lambda = 0.8;				// is gonna change
+		lambdaUB = 0.5;
 		differentAgent = 0.8;
 		epsilonStep = 0.1;
-		algorythmType = "p_agc";	// dsa, dsa-a,dsa-b, mgm, dba, acls, mcs-mgm, gca-mgm, goods-mgm, agc, sm_agc, p_agc
-		socialVoteType = "cost";	// none, cost or binary
-		personalType = "portion"; // portion, normalized
+		algorythmType = "p_agc";		// dsa, dsa-a,dsa-b, mgm, dba, acls, mcs-mgm, gca-mgm, goods-mgm, agc, sm_agc, p_agc
+		socialVoteType = "cost";		// none, cost or binary
+		personalType = "portion"; 		// portion, normalized
+		lambdaSpreadType = "all_same";	// all_same, prior, uniform
 		tabooVote = true;
 		symmetric = false;
 		bestResponse = false;
@@ -116,10 +124,10 @@ public class Starter {
 		currentNumOfRun = 0;
 		numOfFreeze = 1;
 		p1 = 0.1;
-		p2 = 0.5;
+		p2 = 0.0;
 		p3 = 0.7;
 		p4 = 0.5;
-		type2 = 6;
+		type2 = 1;
 		theParent = 5;			// 28,5
 		additionName = "step 0.1-portion";
 		vetorsAllNew();
@@ -277,6 +285,7 @@ private static void parametersAllTypes (int i, int s, int k){
 		Agent.resetIDglobal();
 		random.setSeed(currentNumOfRun+100);
 		randomType.setSeed(currentNumOfRun+500);
+		randomIndiType.setSeed(currentNumOfRun+200);
 		anytimeHeight = 0;
 	}
 
@@ -898,6 +907,9 @@ private static void parametersAllTypes (int i, int s, int k){
 	public static Random getRandom() {
 		return random;
 	}
+	public static Random getRandomIndiType() {
+		return randomIndiType;
+	}
 	public static int getCurrentNumOfAnytime() {
 		return currentNumOfAnytime;
 	}
@@ -952,5 +964,10 @@ private static void parametersAllTypes (int i, int s, int k){
 			}
 		}
 		return minValue;
+	}
+
+	public static String getLambdaSpreadType() {
+		return lambdaSpreadType;
+	
 	}
 }
