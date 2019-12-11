@@ -18,6 +18,7 @@ public class IS_AgcAgent extends SM_AgcAgent{
 	protected String labmdaIndicatorType;
 	protected boolean valueHasChanged;
 	protected int theLastChanger;
+	protected double lambdaMax;
 	protected double lambdaUB;
 	protected double gamma;							// opposite to weight of history
 	
@@ -38,7 +39,7 @@ public class IS_AgcAgent extends SM_AgcAgent{
 		theLastChanger = 1000;
 		lambdaUB = lamUB;
 		gamma = gama;
-		
+		lambdaMax = lamb+lamUB;
 	}
 	public void initializeArrayMessages(){
 		if(myAgents.size()>0){
@@ -59,14 +60,10 @@ public class IS_AgcAgent extends SM_AgcAgent{
 		}
 	}
 	private void initializeVectors(int i){
-		allPersonalLambda.get(i).set(0,1.0);   // change the 1.0  -------------------
 		previousLastModification.add(0.0);
-		personalLambdaBeginning.add(1.0);		// change row  -----------------------
 		copyOfNextValueOffer.add(0.0);
-		individualLambda.add(0.0);
 		lastModification.add(0.0);
 		deltaOfIteration.add(0.0);
-		personalBudget.add(0.0);
 	}
 	private void determineLambdas(){
 		for (int i=0;i<myAgents.size();i++){
@@ -90,6 +87,7 @@ public class IS_AgcAgent extends SM_AgcAgent{
 			allPersonalLambda.get(i).set(0,lam);
 			personalLambdaBeginning.add(lam);
 			individualLambda.add(lam);
+			personalBudget.add(value*(lam+1));
 		}
 	}
 
@@ -104,10 +102,10 @@ public class IS_AgcAgent extends SM_AgcAgent{
 		if(myValues.size()>1){
 			previousLastModification=lastModification;
 			valueHasChanged = false;
-			for (int i=0;i<myAgents.size();i++){
+			for (int i=0;i<myAgents.size();i++){									// looking for the changer neighbor
 				double differenceOfModification = 0.0;
 				double normalizedDifference = 0.0;
-				if(myAgents.get(i).getVariable()!=localView.get(i)){
+				if(myAgents.get(i).getVariable()!=localView.get(i)){				// found the changer
 					valueHasChanged = true;
 					theLastChanger=i;
 					differenceOfModification = myValues.get(myValues.get(Starter.getCurrentNumOfIterations()-Starter.getCurrentNumOfIterations()-1));
@@ -125,15 +123,17 @@ public class IS_AgcAgent extends SM_AgcAgent{
 		double newLambda = 0.0;
 		switch (labmdaIndicatorType) {
 		case "indicator":
-			if(hasCh) newLambda = lastLambda-deltaOfIteration.get(ag);		// indicator if there was a change
+			if(hasCh) newLambda = lastLambda-deltaOfIteration.get(ag);				// indicator if there was a change
 			else newLambda = lastLambda;
 			break;
 		case "lam_zero":
-			newLambda = personalLambdaBeginning.get(ag) - deltaOfIteration.get(ag);		// look at first lambda of iteration zero
+			newLambda = personalLambdaBeginning.get(ag) - deltaOfIteration.get(ag);	// look at first lambda of iteration zero
 			break;
 		}
+		if(newLambda>lambdaMax) {newLambda=lambdaMax;}								// making sure lambda doesn't override lambda max
 		individualLambda.set(ag,newLambda);
-		allPersonalLambda.get(ag).add(newLambda);  // enter lambda to archive
+		allPersonalLambda.get(ag).add(newLambda);  									// enter lambda to archive
+		personalBudget.set(ag,(baseLine/(1+lambda))*(1+newLambda));					// taking back first calculation and bringing new calculation
 	}
 	private void makePrivateDelta(int ag, double deltaNew){
 //			System.out.print("Agent: " + this.getIdAgent() + ". My value: " + value + ". My Baseline: " +baseLine+ ". Personal Baselines: ");
