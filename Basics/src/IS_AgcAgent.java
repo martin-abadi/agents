@@ -14,7 +14,7 @@ public class IS_AgcAgent extends SM_AgcAgent{
 	protected ArrayList<Double> lastModification;
 	protected ArrayList<Double> deltaOfIteration;
 	protected ArrayList<Double> personalBudget;
-	protected String individualSubjectiveType;
+	protected String deltaType;
 	protected String labmdaIndicatorType;
 	protected boolean valueHasChanged;
 	protected int theLastChanger;
@@ -23,7 +23,7 @@ public class IS_AgcAgent extends SM_AgcAgent{
 	protected double gamma;							// opposite to weight of history
 	
 	//new private
-	public IS_AgcAgent(double lamb, char var, int type2,boolean tab,String weight,String is_Type,String lam_Type,double gama,double lamUB) {
+	public IS_AgcAgent(double lamb, char var, int type2,boolean tab,String weight,String del_Type,String lam_Type,double gama,double lamUB) {
 		super(lamb, var, type2, tab, weight);
 		allPersonalLambda = new ArrayList<ArrayList <Double>> ();
 		previousLastModification = new ArrayList<Double> ();
@@ -33,7 +33,7 @@ public class IS_AgcAgent extends SM_AgcAgent{
 		lastModification = new ArrayList<Double> ();
 		deltaOfIteration = new ArrayList<Double> ();
 		personalBudget = new ArrayList<Double> ();
-		individualSubjectiveType = is_Type;
+		deltaType = del_Type;
 		labmdaIndicatorType = lam_Type;
 		valueHasChanged = false;
 		theLastChanger = 1000;
@@ -139,7 +139,7 @@ public class IS_AgcAgent extends SM_AgcAgent{
 //			System.out.print("Agent: " + this.getIdAgent() + ". My value: " + value + ". My Baseline: " +baseLine+ ". Personal Baselines: ");
 		double lastDelta = deltaOfIteration.get(ag);
 		double newDelta = 0.0;
-		switch (individualSubjectiveType) {
+		switch (deltaType) {
 		case "only_change":
 			newDelta = gamma*deltaNew + (1-gamma)*lastDelta;
 			break;
@@ -271,7 +271,7 @@ public class IS_AgcAgent extends SM_AgcAgent{
 
 	private void calculateIndividualSubjectiveLambda() {
 		for (int i=0;i<myAgents.size();i++){ 
-			switch (individualSubjectiveType) {
+			switch (deltaType) {
 			case "indicator":
 				
 				break;

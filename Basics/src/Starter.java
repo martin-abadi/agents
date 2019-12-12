@@ -43,6 +43,7 @@ public class Starter {
 	private static double p4;
 	private static double lambda;
 	private static double lambdaUB;				// upper bound for lambda uniform spreading
+	private static double gammaHistory;			// percent of weight of last iteration over history, dumping
 	private static double differentAgent;
 	private static double epsilonStep;
 	private static boolean symmetric;			// symmetric or asymmetric problems
@@ -86,16 +87,17 @@ public class Starter {
 		epsilonStep = 0.1;
 		lambda = 0.8;
 		lambdaUB = 0.5;
+		gammaHistory = 0.3;
 		differentAgent = 0.1;
 		type2 = 1;
-		theParent = 5;					// 28,5
-		algorythmType = "p_agc";		// dsa, dsa-a,dsa-b, mgm, dba, acls, mcs-mgm, gca-mgm, goods-mgm, agc, sm_agc, p_agc
-		socialVoteType = "cost";		// none, cost or binary
-		personalType = "normalized"; 	// portion, normalized
+		theParent = 5;						// 28,5
+		algorythmType = "p_agc";			// dsa, dsa-a,dsa-b, mgm, dba, acls, mcs-mgm, gca-mgm, goods-mgm, agc, sm_agc, p_agc
+		socialVoteType = "cost";			// none, cost or binary
+		personalType = "normalized"; 		// portion, normalized
 		additionName = "";
-		lambdaSpreadType = "all_same";	// all_same, prior, uniform
-		deltaType = "indicator";			// indicator, lam_zero
-		lambdaType = "only_change";			// only_change, offer
+		lambdaSpreadType = "all_same";		// all_same, prior, uniform
+		lambdaType = "indicator";			// indicator, lam_zero
+		deltaType = "only_change";			// only_change, offer
 		vetorsAllNew();
 	}
 	private static void vetorsAllNew (){
@@ -111,6 +113,7 @@ public class Starter {
 	private static void allNewForOne (){
 		lambda = 0.8;				// is gonna change
 		lambdaUB = 0.5;
+		gammaHistory = 0.3;
 		differentAgent = 0.8;
 		epsilonStep = 0.1;
 		algorythmType = "p_agc";		// dsa, dsa-a,dsa-b, mgm, dba, acls, mcs-mgm, gca-mgm, goods-mgm, agc, sm_agc, p_agc
@@ -299,60 +302,61 @@ private static void parametersAllTypes (int i, int s, int k){
 			if (bestResponse){
 				var = 'q';
 			}
-			if (type == "dsa"){
+			switch (type) {
+			case "dsa":
 				DsaAgent a = new DsaAgent(p1,p3,var,'c');
 				allAgents.add(a);
 //				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
-			}// define how to create an Agent and give him a random value
-			if (type == "dsa-a"){
-				DsaAgent a = new DsaAgent(p1,p3,var,'a');
-				allAgents.add(a);
+				break;
+			case "dsa-a":
+				DsaAgent a1 = new DsaAgent(p1,p3,var,'a');
+				allAgents.add(a1);
 //				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
-			}
-			if (type == "dsa-b"){
-				DsaAgent a = new DsaAgent(p1,p3,var,'b');
-				allAgents.add(a);
+				break;
+			case "dsa-b":
+				DsaAgent a2 = new DsaAgent(p1,p3,var,'b');
+				allAgents.add(a2);
 //				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
-			}
-			if (type == "mgm"){
-				MgmAgent a = new MgmAgent(var);
-				allAgents.add(a);
+				break;
+			case "mgm":
+				MgmAgent a3 = new MgmAgent(var);
+				allAgents.add(a3);
 //				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
-			}
-			if (type == "dba"){
-				DbaAgent a = new DbaAgent(var);
-				allAgents.add(a);
+				break;
+			case "dba":
+				DbaAgent a4 = new DbaAgent(var);
+				allAgents.add(a4);
 //				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
-			}
-			if (type == "acls"){
-				AclsAgent a = new AclsAgent(p1,p3,p4,var);
-				allAgents.add(a);
+				break;
+			case "acls":
+				AclsAgent a5 = new AclsAgent(p1,p3,p4,var);
+				allAgents.add(a5);
 //				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
-			}
-			if (type == "mcs-mgm"){
-				Mcs_MgmAgent a = new Mcs_MgmAgent(var,'m');
-				allAgents.add(a);
+				break;
+			case "mcs-mgm":
+				Mcs_MgmAgent a6 = new Mcs_MgmAgent(var,'m');
+				allAgents.add(a6);
 //				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
-			}
-			if (type == "gca-mgm"){
-				Mcs_MgmAgent a = new Mcs_MgmAgent(var,'g');
-				allAgents.add(a);
+				break;
+			case "gca-mgm":
+				Mcs_MgmAgent a7 = new Mcs_MgmAgent(var,'g');
+				allAgents.add(a7);
 //				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
-			}
-			if (type == "agc"){
-/*/*/			int typeee = (int)(randomType.nextDouble()*5)+1;
+				break;
+			case "agc":
+				int typeee = (int)(randomType.nextDouble()*5)+1;
 //				AgcAgent a = new AgcAgent(lambda,var,typeee);
 /*/*/
-				AgcAgent a = new AgcAgent(lambda,var,type2);
-				allAgents.add(a);
+				AgcAgent a8 = new AgcAgent(lambda,var,type2);
+				allAgents.add(a8);
+//				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);	
+				break;
+			case "smpo_agc":
+				SM_AgcAgent a9 = new SMPO_AgcAgent(lambda,var,type2,tabooVote,socialVoteType,0.0);
+				allAgents.add(a9);
 //				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
-			}
-			if (type == "smpo_agc"){
-				SM_AgcAgent a = new SMPO_AgcAgent(lambda,var,type2,tabooVote,socialVoteType,0.0);
-				allAgents.add(a);
-//				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
-			}
-			if (type == "sm_agc"){
+				break;
+			case "sm_agc":
 /*				int typeee = (int)(randomType.nextDouble()*5)+1;
 				boolean tVote = false;
 				if(randomType.nextDouble()>0.5){tVote=true;}
@@ -361,31 +365,39 @@ private static void parametersAllTypes (int i, int s, int k){
 				if (pp>0.333&&pp<=0.666){socVote = "cost";}else if (pp>0.666){socVote = "binary";}
 				SM_AgcAgent a = new SM_AgcAgent(lambda,var,typeee,tVote,socVote);
 */
-				SM_AgcAgent a = new SM_AgcAgent(lambda,var,type2,tabooVote,socialVoteType);
-				a.setEpsilonStep(epsilonStep);
-				allAgents.add(a);
+				SM_AgcAgent a10 = new SM_AgcAgent(lambda,var,type2,tabooVote,socialVoteType);
+				a10.setEpsilonStep(epsilonStep);
+				allAgents.add(a10);
 //				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
-			}
-			if (type == "p_agc"){	
-				P_AgcAgent a = new P_AgcAgent(lambda,var,type2,tabooVote,socialVoteType,personalType);
-				a.setEpsilonStep(0.25);
-				allAgents.add(a);
+				break;
+			case "p_agc":
+				P_AgcAgent a11 = new P_AgcAgent(lambda,var,type2,tabooVote,socialVoteType,personalType);
+				a11.setEpsilonStep(0.25);
+				allAgents.add(a11);
 //				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
-			}
-			if (type == "t-agc"){
-				T_AGC a = new T_AGC(lambda,var,numOfFreeze);
-				allAgents.add(a);
+				break;
+			case "t-agc":
+				T_AGC a12 = new T_AGC(lambda,var,numOfFreeze);
+				allAgents.add(a12);
 //				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
-			}
-			if (type == "goods-mgm"){
-				GoodsMgmAgent a = new GoodsMgmAgent(lambda,var,numOfVariables,type2);
-				allAgents.add(a);
+				break;
+			case "goods-mgm":
+				GoodsMgmAgent a13 = new GoodsMgmAgent(lambda,var,numOfVariables,type2);
+				allAgents.add(a13);
 //				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
-			}
-			if (type == "t-goods-mgm"){
-				T_GoodsMgmAgent a = new T_GoodsMgmAgent(lambda,var,numOfVariables,numOfFreeze,type2);
-				allAgents.add(a);
+				break;
+			case "t-goods-mgm":
+				T_GoodsMgmAgent a14 = new T_GoodsMgmAgent(lambda,var,numOfVariables,numOfFreeze,type2);
+				allAgents.add(a14);
 //				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
+				break;
+			case "is_agc":
+				IS_AgcAgent a15 = new IS_AgcAgent(lambda,var,type2,tabooVote,socialVoteType,deltaType,lambdaType,gammaHistory,lambdaUB); //String is_Type,String lam_Type,double gama,double lamUB
+				allAgents.add(a15);
+//				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
+				personalType = "portion"; 		// portion, normalized
+				lambdaSpreadType = "all_same";	// all_same, prior, uniform
+				break;
 			}
 		}
 	}
