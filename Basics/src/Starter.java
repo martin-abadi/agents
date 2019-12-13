@@ -139,6 +139,7 @@ public class Starter {
 		additionName = "step 0.1-portion";
 		vetorsAllNew();
 	}
+// ----------------------------------------------------- RUN FUNCTIONS -------------------------------------
 	private static void runAllTypes() {
 		for (int k = 1; k<8;k++){				// k for type number, 6 needs step 0.1 and 0.25
 			for (int s = 0; s < 6; s++){		// s for algorithm
@@ -170,32 +171,6 @@ public class Starter {
 			}
 		}		
 	}
-private static void parametersAllTypes (int i, int s, int k){
-		
-		if (i==1){algorythmType="agc";socialVoteType = "none";tabooVote = false;}
-		else if (i==2){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = false;}
-		else if (i==3){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = true;}
-		else if (i==4){algorythmType="sm_agc";socialVoteType = "cost";tabooVote = false;}
-		else if (i==5){algorythmType="sm_agc";socialVoteType = "cost";tabooVote = true;}
-		else if (i==6){algorythmType="sm_agc";socialVoteType = "none";tabooVote = true;}
-		
-		
-		if (s==0){lambda = 0.8;}
-		else if (s==1){lambda = 0.8; algorythmType="p_agc"; personalType = "portion";}// portion, normalized
-		else if (s==2){lambda = 0.8; algorythmType="p_agc"; personalType = "normalized";}
-		else if (s==3){lambda = 0.1;}
-		else if (s==4){lambda = 0.1; algorythmType="p_agc"; personalType = "portion";}// portion, normalized
-		else if (s==5){lambda = 0.1; algorythmType="p_agc"; personalType = "normalized";}
-		
-		//epsilonStep
-		if (k==1){type2 = 1;}
-		else if (k==2){type2 = 2;}
-		else if (k==3){type2 = 3;}
-		else if (k==4){type2 = 4;}
-		else if (k==5){type2 = 5;}
-		else if (k==6){type2 = 6; epsilonStep=0.1;}
-		else if (k==7){type2 = 6; epsilonStep=0.25;}
-	}
 	private static void runNormalOnce() {
 		allNewForOne();
 		for (currentNumOfRun =1;currentNumOfRun<=numOfRuns;currentNumOfRun++){
@@ -214,7 +189,6 @@ private static void parametersAllTypes (int i, int s, int k){
 //		printTheDifferent(additionName,nameOFPrint);
 		//		 	printSocial(nameOFDifferent,nameOFPrint);
 	}
-
 	private static void runAllTypesAmountRange() {
 		for (int k = 1; k<7;k++){				// k for type
 			for (int s = 0; s < 29; s++){		// s for amount of maniac
@@ -244,7 +218,6 @@ private static void parametersAllTypes (int i, int s, int k){
 			}
 		}
 	}
-
 	private static void runAllTypesWithOneDifferent() {
 		for (int k = 1; k<7;k++){				// k for type number
 			for (int s = 0; s < 4; s++){		// s for different
@@ -277,9 +250,7 @@ private static void parametersAllTypes (int i, int s, int k){
 			}
 		}		
 	}
-
-	
-
+// ----------------------------------------------------- BUILD THE PROBLEM --------------------------------
 	private static void resetAll(){
 		allAgents = new ArrayList<Agent>();
 		queue = new ArrayList<Agent>();
@@ -295,7 +266,6 @@ private static void parametersAllTypes (int i, int s, int k){
 		randomIndiType.setSeed(currentNumOfRun+200);
 		anytimeHeight = 0;
 	}
-
 	private static void createAgents (String type){
 		for (int i=0;i<numOfAgents;i++){
 			char var = (char)((int)(random.nextDouble()*numOfVariables) + 97);			// random variable for each agent
@@ -311,37 +281,37 @@ private static void parametersAllTypes (int i, int s, int k){
 			case "dsa-a":
 				DsaAgent a1 = new DsaAgent(p1,p3,var,'a');
 				allAgents.add(a1);
-//				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
+//				System.out.println("HEY, NEW AGENT: " + a1.getIdAgent() + " first variable: " +var);
 				break;
 			case "dsa-b":
 				DsaAgent a2 = new DsaAgent(p1,p3,var,'b');
 				allAgents.add(a2);
-//				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
+//				System.out.println("HEY, NEW AGENT: " + a2.getIdAgent() + " first variable: " +var);
 				break;
 			case "mgm":
 				MgmAgent a3 = new MgmAgent(var);
 				allAgents.add(a3);
-//				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
+//				System.out.println("HEY, NEW AGENT: " + a3.getIdAgent() + " first variable: " +var);
 				break;
 			case "dba":
 				DbaAgent a4 = new DbaAgent(var);
 				allAgents.add(a4);
-//				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
+//				System.out.println("HEY, NEW AGENT: " + a4.getIdAgent() + " first variable: " +var);
 				break;
 			case "acls":
 				AclsAgent a5 = new AclsAgent(p1,p3,p4,var);
 				allAgents.add(a5);
-//				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
+//				System.out.println("HEY, NEW AGENT: " + a5.getIdAgent() + " first variable: " +var);
 				break;
 			case "mcs-mgm":
 				Mcs_MgmAgent a6 = new Mcs_MgmAgent(var,'m');
 				allAgents.add(a6);
-//				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
+//				System.out.println("HEY, NEW AGENT: " + a6.getIdAgent() + " first variable: " +var);
 				break;
 			case "gca-mgm":
 				Mcs_MgmAgent a7 = new Mcs_MgmAgent(var,'g');
 				allAgents.add(a7);
-//				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
+//				System.out.println("HEY, NEW AGENT: " + a7.getIdAgent() + " first variable: " +var);
 				break;
 			case "agc":
 				int typeee = (int)(randomType.nextDouble()*5)+1;
@@ -349,12 +319,12 @@ private static void parametersAllTypes (int i, int s, int k){
 /*/*/
 				AgcAgent a8 = new AgcAgent(lambda,var,type2);
 				allAgents.add(a8);
-//				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);	
+//				System.out.println("HEY, NEW AGENT: " + a8.getIdAgent() + " first variable: " +var);	
 				break;
 			case "smpo_agc":
 				SM_AgcAgent a9 = new SMPO_AgcAgent(lambda,var,type2,tabooVote,socialVoteType,0.0);
 				allAgents.add(a9);
-//				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
+//				System.out.println("HEY, NEW AGENT: " + a9.getIdAgent() + " first variable: " +var);
 				break;
 			case "sm_agc":
 /*				int typeee = (int)(randomType.nextDouble()*5)+1;
@@ -368,40 +338,39 @@ private static void parametersAllTypes (int i, int s, int k){
 				SM_AgcAgent a10 = new SM_AgcAgent(lambda,var,type2,tabooVote,socialVoteType);
 				a10.setEpsilonStep(epsilonStep);
 				allAgents.add(a10);
-//				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
+//				System.out.println("HEY, NEW AGENT: " + a10.getIdAgent() + " first variable: " +var);
 				break;
 			case "p_agc":
 				P_AgcAgent a11 = new P_AgcAgent(lambda,var,type2,tabooVote,socialVoteType,personalType);
 				a11.setEpsilonStep(0.25);
 				allAgents.add(a11);
-//				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
+//				System.out.println("HEY, NEW AGENT: " + a11.getIdAgent() + " first variable: " +var);
 				break;
 			case "t-agc":
 				T_AGC a12 = new T_AGC(lambda,var,numOfFreeze);
 				allAgents.add(a12);
-//				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
+//				System.out.println("HEY, NEW AGENT: " + a12.getIdAgent() + " first variable: " +var);
 				break;
 			case "goods-mgm":
 				GoodsMgmAgent a13 = new GoodsMgmAgent(lambda,var,numOfVariables,type2);
 				allAgents.add(a13);
-//				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
+//				System.out.println("HEY, NEW AGENT: " + a13.getIdAgent() + " first variable: " +var);
 				break;
 			case "t-goods-mgm":
 				T_GoodsMgmAgent a14 = new T_GoodsMgmAgent(lambda,var,numOfVariables,numOfFreeze,type2);
 				allAgents.add(a14);
-//				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
+//				System.out.println("HEY, NEW AGENT: " + a14.getIdAgent() + " first variable: " +var);
 				break;
 			case "is_agc":
 				IS_AgcAgent a15 = new IS_AgcAgent(lambda,var,type2,tabooVote,socialVoteType,deltaType,lambdaType,gammaHistory,lambdaUB); //String is_Type,String lam_Type,double gama,double lamUB
 				allAgents.add(a15);
-//				System.out.println("HEY, NEW AGENT: " + a.getIdAgent() + " first variable: " +var);
+				System.out.println("HEY, NEW AGENT: " + a15.getIdAgent() + " first variable: " +var);
 				personalType = "portion"; 		// portion, normalized
 				lambdaSpreadType = "all_same";	// all_same, prior, uniform
 				break;
 			}
 		}
 	}
-
 	private static void makeNeighbours (){
 		for (int i=0;i<numOfAgents;i++){
 			for(int j=i+1;j<numOfAgents;j++){
@@ -425,19 +394,16 @@ private static void parametersAllTypes (int i, int s, int k){
 			}
 		}
 	}
-
 	private static void makeAmountDifferentAgent (double differ, int amo){
 		if (amo>0){
 			for(int i = 1; i<=amo;i++){
 				((AgcAgent)allAgents.get(i-1)).lambda = differ;
 			}
 		}
-	}
-	
+	}	
 	private static void makeDifferentAgent (double differ){
 		((AgcAgent)allAgents.get(theParent)).lambda = differ;
 	}
-
 	private static void buildAnytimeStructer (){
 		Agent a = allAgents.get(theParent);
 		a.setRoot();
@@ -459,7 +425,6 @@ private static void parametersAllTypes (int i, int s, int k){
 		//	System.out.println(allAgents.get(j).idAgent + ": my delay: " + allAgents.get(j).getTimer());	
 		//}
 	}
-	
 	private static void activateBestResponse(){
 		for (int r=0;r<2;r++){
 			for (int i=0;i<numOfAgents;i++){
@@ -469,7 +434,6 @@ private static void parametersAllTypes (int i, int s, int k){
 //			System.out.println();
 		}
 	}
-	
 	private static void checkCurrentValue (){
 		int count = 0;
 		for (int i=0;i<numOfAgents;i++){
@@ -486,7 +450,7 @@ private static void parametersAllTypes (int i, int s, int k){
 //	}
 //	System.out.println();
 	}
-
+// ----------------------------------------------------- ALGORYTHMS ------------------------------------------
 	private static void runAlgorythm (String type){
 		if (type == "dsa" || type == "dsa-a"|| type == "dsa-b")
 			runDSA();
@@ -504,8 +468,55 @@ private static void parametersAllTypes (int i, int s, int k){
 			runSM_AGC();
 		if (type == "goods-mgm"|| type == "t-goods-mgm")
 			runGoods_MGM();
+		if (type == "is_agc")
+			runIS_AGC();
 	}
-
+	private static void runIS_AGC() {
+		for (int i=0;i<numOfAgents;i++){((AgcAgent)allAgents.get(i)).calculateBaseLine();}
+		for (int i=0;i<numOfAgents;i++){((SM_AgcAgent)allAgents.get(i)).initializeArrayMessages();}
+		for (currentNumOfIterations=0; currentNumOfIterations<numOfIterations;currentNumOfIterations++){	
+//			System.out.println();
+			int currValue = 0;
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).sendNeighborsMyVariable();}
+			for (int i=0;i<numOfAgents;i++){((SM_AgcAgent)allAgents.get(i)).makePreferenceForNeighbours();}
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).checkImprove();}
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).sendNeighborsMyValue();}
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).sendNeighborsMyNextView();}
+			for (int i=0;i<numOfAgents;i++){((AgcAgent)allAgents.get(i)).setBaseLine();}
+			for (int i=0;i<numOfAgents;i++){((AgcAgent)allAgents.get(i)).sendNeighborsMyValidation();}
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).setVariable();}
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).setValue();}
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).anytiming();}
+			for (int i=0;i<numOfAgents;i++){currValue = currValue + allAgents.get(i).getValue();}
+			setCostPerIteration(currValue,currentNumOfRun-1);
+//			System.out.println("END OF ITERATION: " + (currentNumOfIterations +1) + " TOTAL VALUE: " + currValue);
+//			System.out.print("---------------------------------------------------------------------	");
+//			System.out.println(currentNumOfIterations);
+		}		
+	}
+	private static void runSM_AGC () {
+		for (int i=0;i<numOfAgents;i++){((AgcAgent)allAgents.get(i)).calculateBaseLine();}
+		for (int i=0;i<numOfAgents;i++){((SM_AgcAgent)allAgents.get(i)).initializeArrayMessages();}
+		for (currentNumOfIterations=0; currentNumOfIterations<numOfIterations;currentNumOfIterations++){	
+//			System.out.println();
+			int currValue = 0;
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).sendNeighborsMyVariable();}
+			for (int i=0;i<numOfAgents;i++){((SM_AgcAgent)allAgents.get(i)).makePreferenceForNeighbours();}
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).checkImprove();}
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).sendNeighborsMyValue();}
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).sendNeighborsMyNextView();}
+			for (int i=0;i<numOfAgents;i++){((AgcAgent)allAgents.get(i)).setBaseLine();}
+			for (int i=0;i<numOfAgents;i++){((AgcAgent)allAgents.get(i)).sendNeighborsMyValidation();}
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).setVariable();}
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).setValue();}
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).anytiming();}
+			for (int i=0;i<numOfAgents;i++){currValue = currValue + allAgents.get(i).getValue();}
+			setCostPerIteration(currValue,currentNumOfRun-1);
+//			System.out.println("END OF ITERATION: " + (currentNumOfIterations +1) + " TOTAL VALUE: " + currValue);
+//			System.out.print("---------------------------------------------------------------------	");
+//			System.out.println(currentNumOfIterations);
+		}
+	}
 	private static void runDSA () {
 		for (currentNumOfIterations=0; currentNumOfIterations<numOfIterations;currentNumOfIterations++){	
 			int currValue = 0;
@@ -646,31 +657,8 @@ private static void parametersAllTypes (int i, int s, int k){
 //			System.out.println(currentNumOfIterations);
 		}
 	}
-	private static void runSM_AGC () {
-		for (int i=0;i<numOfAgents;i++){((AgcAgent)allAgents.get(i)).calculateBaseLine();}
-		for (int i=0;i<numOfAgents;i++){((SM_AgcAgent)allAgents.get(i)).initializeArrayMessages();}
-		for (currentNumOfIterations=0; currentNumOfIterations<numOfIterations;currentNumOfIterations++){	
-//			System.out.println();
-			int currValue = 0;
-			for (int i=0;i<numOfAgents;i++){allAgents.get(i).sendNeighborsMyVariable();}
-			for (int i=0;i<numOfAgents;i++){((SM_AgcAgent)allAgents.get(i)).makePreferenceForNeighbours();}
-			for (int i=0;i<numOfAgents;i++){allAgents.get(i).checkImprove();}
-			for (int i=0;i<numOfAgents;i++){allAgents.get(i).sendNeighborsMyValue();}
-			for (int i=0;i<numOfAgents;i++){allAgents.get(i).sendNeighborsMyNextView();}
-			for (int i=0;i<numOfAgents;i++){((AgcAgent)allAgents.get(i)).setBaseLine();}
-			for (int i=0;i<numOfAgents;i++){((AgcAgent)allAgents.get(i)).sendNeighborsMyValidation();}
-			for (int i=0;i<numOfAgents;i++){allAgents.get(i).setVariable();}
-			for (int i=0;i<numOfAgents;i++){allAgents.get(i).setValue();}
-			for (int i=0;i<numOfAgents;i++){allAgents.get(i).anytiming();}
-			for (int i=0;i<numOfAgents;i++){currValue = currValue + allAgents.get(i).getValue();}
-			setCostPerIteration(currValue,currentNumOfRun-1);
-//			System.out.println("END OF ITERATION: " + (currentNumOfIterations +1) + " TOTAL VALUE: " + currValue);
-//			System.out.print("---------------------------------------------------------------------	");
-//			System.out.println(currentNumOfIterations);
-		}
-	}
-	
-	public static void print (String type) {
+// ----------------------------------------------------- PRINTS ------------------------------------------
+	private static void print (String type) {
 		FileWriter fileWriter = null;
 		try {
 			if (!symmetric){ type = type + "-ASYMMETRIC";}
@@ -695,9 +683,8 @@ private static void parametersAllTypes (int i, int s, int k){
 				e.printStackTrace();
 			}             
 		}
-	}
-	
-	public static void printAnytime (String type) {
+	}	
+	private static void printAnytime (String type) {
 		FileWriter fileWriter = null;
 		try {
 			fileWriter = new FileWriter(nameOFPrint+".csv");
@@ -722,7 +709,7 @@ private static void parametersAllTypes (int i, int s, int k){
 			}             
 		}
 	}
-	public static void printTheDifferent (String type,String algo) {
+	private static void printTheDifferent (String type,String algo) {
 		FileWriter fileWriter = null;
 		String file1 = "personal sum-" +algo; 
 		try {
@@ -748,7 +735,7 @@ private static void parametersAllTypes (int i, int s, int k){
 			}             
 		}
 	}
-	public static void printBaseline (String type,String algo) {
+	private static void printBaseline (String type,String algo) {
 		FileWriter fileWriter = null;
 		String file1 = "baseline-" +algo; 
 		try {
@@ -774,7 +761,7 @@ private static void parametersAllTypes (int i, int s, int k){
 			}             
 		}
 	}
-	public static void printValuesOfNeghbors (String algo, int nei,ArrayList<ArrayList<Integer>> arr){
+	private static void printValuesOfNeghbors (String algo, int nei,ArrayList<ArrayList<Integer>> arr){
 		FileWriter fileWriter = null;
 		String file1 = "ValueOfNeighbor-" +nei+"-Run no.-" +currentNumOfRun+"-"+algo;
 		try {
@@ -800,7 +787,7 @@ private static void parametersAllTypes (int i, int s, int k){
 			}             
 		}
 	}
-	public static void printSocial (String type,String algo) {
+	private static void printSocial (String type,String algo) {
 		FileWriter fileWriter = null;
 		String file1 = "sumOfNeighbors-" +algo;
 		try {
@@ -826,7 +813,7 @@ private static void parametersAllTypes (int i, int s, int k){
 			}             
 		}
 	}
-	public static String createName (String addition){
+	private static String createName (String addition){
 		String ans = "";
 		String add = addition;
 		if (algorythmType=="sm_agc"){
@@ -858,7 +845,8 @@ private static void parametersAllTypes (int i, int s, int k){
 		if (add!=""){ ans = ans + "-" + add;}
 		return ans;
 	}
-	public static void finishAnytime(){
+// ----------------------------------------------------- FUNCTIONS END RUNNING -------------------------
+	private static void finishAnytime(){
 		for (currentNumOfAnytime=0; currentNumOfAnytime<anytimeHeight;currentNumOfAnytime++){
 			for (int i=0; i<numOfAgents;i++) {allAgents.get(i).anytimingEnd();}
 			//System.out.println("iteration OK: " + currentNumOfAnytime);
@@ -886,7 +874,7 @@ private static void parametersAllTypes (int i, int s, int k){
 //		System.out.println("sum of neighbors: "+gainOfNeighbors);
 //		System.out.println("best iteration: "+allAgents.get(theParent).bestIteration);
 	}
-	public static void keepAgentsInformation(String algo){
+	private static void keepAgentsInformation(String algo){
 		if(algorythmType=="sm_agc"){
 			if(currentNumOfRun==1||currentNumOfRun==2){
 				for(int i=0;i<allAgents.get(theParent).getMyAgents().size();i++){
@@ -896,6 +884,74 @@ private static void parametersAllTypes (int i, int s, int k){
 			}
 		}
 	}
+// ----------------------------------------------------- FUNCTIONS BEFORE RUNNING ----------------------
+	private static void parametersOneDifferentChange (int i,int s, int k){
+		
+		if (i==1){algorythmType="agc";}
+		else if (i==2){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = false;}
+		else if (i==3){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = true;}
+		else if (i==4){algorythmType="sm_agc";socialVoteType = "cost";tabooVote = false;}
+		else if (i==5){algorythmType="sm_agc";socialVoteType = "cost";tabooVote = true;}
+		else if (i==6){algorythmType="sm_agc";socialVoteType = "none";tabooVote = true;}
+		
+		if (s==0){lambda = 0.8;differentAgent = 0.8;}
+		else if (s==1){lambda = 0.8;differentAgent = 0.1;}
+		else if (s==2){lambda = 0.1;differentAgent = 0.1;}
+		else if (s==3){lambda = 0.1;differentAgent = 0.8;}
+
+		if (k==1){type2 = 1;}
+		else if (k==2){type2 = 2;}
+		else if (k==3){type2 = 3;}
+		else if (k==4){type2 = 4;}
+		else if (k==5){type2 = 5;}
+		else if (k==6){type2 = 6;}
+	}
+	private static void parametersAllTypes (int i, int s, int k){		
+		if (i==1){algorythmType="agc";socialVoteType = "none";tabooVote = false;}
+		else if (i==2){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = false;}
+		else if (i==3){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = true;}
+		else if (i==4){algorythmType="sm_agc";socialVoteType = "cost";tabooVote = false;}
+		else if (i==5){algorythmType="sm_agc";socialVoteType = "cost";tabooVote = true;}
+		else if (i==6){algorythmType="sm_agc";socialVoteType = "none";tabooVote = true;}
+		
+		
+		if (s==0){lambda = 0.8;}
+		else if (s==1){lambda = 0.8; algorythmType="p_agc"; personalType = "portion";}// portion, normalized
+		else if (s==2){lambda = 0.8; algorythmType="p_agc"; personalType = "normalized";}
+		else if (s==3){lambda = 0.1;}
+		else if (s==4){lambda = 0.1; algorythmType="p_agc"; personalType = "portion";}// portion, normalized
+		else if (s==5){lambda = 0.1; algorythmType="p_agc"; personalType = "normalized";}
+		
+		//epsilonStep
+		if (k==1){type2 = 1;}
+		else if (k==2){type2 = 2;}
+		else if (k==3){type2 = 3;}
+		else if (k==4){type2 = 4;}
+		else if (k==5){type2 = 5;}
+		else if (k==6){type2 = 6; epsilonStep=0.1;}
+		else if (k==7){type2 = 6; epsilonStep=0.25;}
+	}
+	private static void parametersAmountDifferentChange(int i, int s, int k) {
+		
+		if (i==1){algorythmType="agc";}
+		else if (i==2){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = false;}
+		else if (i==3){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = true;}
+		else if (i==4){algorythmType="sm_agc";socialVoteType = "cost";tabooVote = false;}
+		else if (i==5){algorythmType="sm_agc";socialVoteType = "cost";tabooVote = true;}
+		else if (i==6){algorythmType="sm_agc";socialVoteType = "none";tabooVote = true;}
+		
+		if (s<6){amountOfDifferents=s;}
+		else if (s>5 && s<23){amountOfDifferents = (s-4)*5;}
+		else if (s>22){amountOfDifferents = 72 + s ;}
+
+		if (k==1){type2 = 1;}
+		else if (k==2){type2 = 2;}
+		else if (k==3){type2 = 3;}
+		else if (k==4){type2 = 4;}
+		else if (k==5){type2 = 5;}
+		else if (k==6){type2 = 6;}
+	}
+// ----------------------------------------------------- GET AND SET -----------------------------------
 	public static ArrayList<Agent> getAllAgents() {
 		return allAgents;
 	}
@@ -929,49 +985,6 @@ private static void parametersAllTypes (int i, int s, int k){
 	public static int getCurrentNumOfAnytime() {
 		return currentNumOfAnytime;
 	}
-	private static void parametersOneDifferentChange (int i,int s, int k){
-		
-		if (i==1){algorythmType="agc";}
-		else if (i==2){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = false;}
-		else if (i==3){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = true;}
-		else if (i==4){algorythmType="sm_agc";socialVoteType = "cost";tabooVote = false;}
-		else if (i==5){algorythmType="sm_agc";socialVoteType = "cost";tabooVote = true;}
-		else if (i==6){algorythmType="sm_agc";socialVoteType = "none";tabooVote = true;}
-		
-		if (s==0){lambda = 0.8;differentAgent = 0.8;}
-		else if (s==1){lambda = 0.8;differentAgent = 0.1;}
-		else if (s==2){lambda = 0.1;differentAgent = 0.1;}
-		else if (s==3){lambda = 0.1;differentAgent = 0.8;}
-
-		if (k==1){type2 = 1;}
-		else if (k==2){type2 = 2;}
-		else if (k==3){type2 = 3;}
-		else if (k==4){type2 = 4;}
-		else if (k==5){type2 = 5;}
-		else if (k==6){type2 = 6;}
-	}
-	
-	
-	private static void parametersAmountDifferentChange(int i, int s, int k) {
-		
-		if (i==1){algorythmType="agc";}
-		else if (i==2){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = false;}
-		else if (i==3){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = true;}
-		else if (i==4){algorythmType="sm_agc";socialVoteType = "cost";tabooVote = false;}
-		else if (i==5){algorythmType="sm_agc";socialVoteType = "cost";tabooVote = true;}
-		else if (i==6){algorythmType="sm_agc";socialVoteType = "none";tabooVote = true;}
-		
-		if (s<6){amountOfDifferents=s;}
-		else if (s>5 && s<23){amountOfDifferents = (s-4)*5;}
-		else if (s>22){amountOfDifferents = 72 + s ;}
-
-		if (k==1){type2 = 1;}
-		else if (k==2){type2 = 2;}
-		else if (k==3){type2 = 3;}
-		else if (k==4){type2 = 4;}
-		else if (k==5){type2 = 5;}
-		else if (k==6){type2 = 6;}
-	}
 	public static int getMinValue(ArrayList <Integer> array) {
 		int minValue = array.get(0);
 		for (int i = 1; i < array.size(); i++) {
@@ -981,9 +994,9 @@ private static void parametersAllTypes (int i, int s, int k){
 		}
 		return minValue;
 	}
-
 	public static String getLambdaSpreadType() {
 		return lambdaSpreadType;
 	
 	}
+
 }
