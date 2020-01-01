@@ -83,14 +83,13 @@ public class IS_AgcAgent extends SM_AgcAgent{
 				lam = ma + lambda - lambdaUB;
 				break;
 			}
-			System.out.println("Agent: " + this.getIdAgent()+ ". To neighbor: " + myAgents.get(i).getIdAgent() + ". my beginning LAMBDA is: " + lam) ;
-			allPersonalLambda.get(i).set(0,lam);
+//			System.out.println("Agent: " + this.getIdAgent()+ ". To neighbor: " + myAgents.get(i).getIdAgent() + ". my beginning LAMBDA is: " + lam) ;
+			allPersonalLambda.get(i).add(lam);
 			personalLambdaBeginning.add(lam);
 			individualLambda.add(lam);
 			personalBudget.add(value*(lam+1));
 		}
 	}
-
 	public void sendNeighborsMyVariable (){
 		updateLastChange();
 		localView.clear();
@@ -101,18 +100,19 @@ public class IS_AgcAgent extends SM_AgcAgent{
 	private void updateLastChange(){
 		if(myValues.size()>1){
 			previousLastModification=lastModification;
-			valueHasChanged = false;
 			for (int i=0;i<myAgents.size();i++){									// looking for the changer neighbor
 				double differenceOfModification = 0.0;
 				double normalizedDifference = 0.0;
+				valueHasChanged = false;
 				if(myAgents.get(i).getVariable()!=localView.get(i)){				// found the changer
 					valueHasChanged = true;
 					theLastChanger=i;
-					differenceOfModification = myValues.get(myValues.get(Starter.getCurrentNumOfIterations()-Starter.getCurrentNumOfIterations()-1));
+					differenceOfModification = myValues.get(Starter.getCurrentNumOfIterations())-myValues.get(Starter.getCurrentNumOfIterations()-1);
 					normalizedDifference = differenceOfModification/myValues.get(Starter.getCurrentNumOfIterations()-1);
 					// positive difference is bad!!
 //						System.out.println("Agent: " + this.getIdAgent() + ". Last value change: " + differenceOfModification + ". Made by agent no. " + myAgents.get(i).getIdAgent());
-			}
+				}
+//				if((idAgent==3)&&(Starter.getCurrentNumOfRun()==2))System.out.println("FOR: "+i+". Normalize= "+normalizedDifference);
 				makePrivateDelta(i,normalizedDifference);
 				makePrivateLambda(i,valueHasChanged);
 			}
@@ -140,11 +140,12 @@ public class IS_AgcAgent extends SM_AgcAgent{
 		double lastDelta = deltaOfIteration.get(ag);
 		double newDelta = 0.0;
 		switch (deltaType) {
-		case "only_change":
+		case "only_change":							// consider only if the neighbor had change her variable
 			newDelta = gamma*deltaNew + (1-gamma)*lastDelta;
 			break;
-		case "offer":
+		case "offer":								// consider even the neighbor's offer
 			newDelta = gamma*copyOfNextValueOffer.get(ag) + (1-gamma)*lastDelta;
+//			if((idAgent==3)&&(Starter.getCurrentNumOfRun()==2))System.out.println("TO: "+ ag+". NEWDELTA= "+newDelta+", offer: "+copyOfNextValueOffer.get(ag));
 			break;
 		}
 		deltaOfIteration.set(ag, newDelta);
@@ -157,7 +158,6 @@ public class IS_AgcAgent extends SM_AgcAgent{
 			vote_preference();
 		}
 	}
-
 	protected void taboo_preference(){
 		if (localView.size()>0)	{
 			for (int i=0;i<myAgents.size();i++){
@@ -176,10 +176,8 @@ public class IS_AgcAgent extends SM_AgcAgent{
 			}
 		}
 	}
-
 	public void sendNeighborsMyValidation (){
 		validatePersonalOffers();
-
 		if(myAgents.size()>0){
 			int index = nextSocialValue.indexOf(Collections.max(nextSocialValue));
 			int costFrom2 = (myMatrixs.get(index).getSpecificValue(this.variable, nextView.get(index))-myMatrixs.get(index).getSpecificValue(this.variable, localView.get(index)));
@@ -208,14 +206,29 @@ public class IS_AgcAgent extends SM_AgcAgent{
 	private void validatePersonalOffers (){
 		for (int i=0;i<myAgents.size();i++){
 			int costFrom1 = (myMatrixs.get(i).getSpecificValue(this.variable, nextView.get(i))-myMatrixs.get(i).getSpecificValue(this.variable, localView.get(i)));
-			copyOfNextValueOffer.set(i,(double) (costFrom1/value));
+			if(myValues.size()>1){
+				if (value>0){
+//					if((idAgent==3)&&(Starter.getCurrentNumOfRun()==2))System.out.println("IFFFF @@@@");
+//					if((idAgent==3)&&(Starter.getCurrentNumOfRun()==2))System.out.println("COST: "+costFrom1+". val: "+myValues.get(Starter.getCurrentNumOfIterations()-1));
+					double wh = (double)costFrom1/myValues.get(Starter.getCurrentNumOfIterations()-1);
+					copyOfNextValueOffer.set(i,wh);
+					if((this.idAgent==3)&&(myAgents.get(i).getIdAgent()==13)&&(Starter.getCurrentNumOfRun()==2))
+						System.out.println("To neighbor: " + myAgents.get(i).getIdAgent() + ".	Value: " + (myValues.get(Starter.getCurrentNumOfIterations()-1))
+							+ ". His offer cost: " +costFrom1+", wh: "+wh+ "	--------- itearation: "+ (Starter.getCurrentNumOfIterations()+2));
+//					if((idAgent==3)&&(Starter.getCurrentNumOfRun()==2))System.out.println("%%CRAZY-VECTOR: "+copyOfNextValueOffer.get(i)+", whwhwhwh= "+wh);	
+					}
+				else {
+//					if((idAgent==3)&&(Starter.getCurrentNumOfRun()==2))System.out.println("ELSEE");
+//					if((idAgent==3)&&(Starter.getCurrentNumOfRun()==2))System.out.println("COST: "+costFrom1+". val: "+Starter.getCurrentNumOfIterations());
+					copyOfNextValueOffer.set(i,0.0);
+					}
+			}
 			if (value+costFrom1>personalBudget.get(i)){
 				nextSocialValue.set(i, -1.0);
 //					System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent() + ". AUCH, YOU HEART ME.");
 			}
 		}
 	}
-
 	public void setBaseLine(){
 //			if(idAgent==6){
 //				System.out.println("Agent: " + this.getIdAgent() + ". miu_minus_1: " + miu_minus_1 + ". num of iteration: " + Starter.getCurrentNumOfIterations());
@@ -261,26 +274,11 @@ public class IS_AgcAgent extends SM_AgcAgent{
 //	 		System.out.print("Agent: " + this.getIdAgent() + ". baseLine before changing: " + baseLine+ ". miu_t: " + miu_t);
 //			System.out.println();
 //			}
-		calculateIndividualSubjectiveLambda();
 		baseLine = miu_t*(1+lambda);
 
 //			if(idAgent==6){
 //				System.out.println(". baseLine AFTER: " + baseLine);
 //			}
-	}
-
-	private void calculateIndividualSubjectiveLambda() {
-		for (int i=0;i<myAgents.size();i++){ 
-			switch (deltaType) {
-			case "indicator":
-				
-				break;
-			case "offer":
-
-				break;
-			}
-		}
-		
 	}
 	protected void updateEpsilonPolicy (int cost_St, int c_St_minus_1){
 		if (cost_St > c_St_minus_1){
@@ -294,6 +292,7 @@ public class IS_AgcAgent extends SM_AgcAgent{
 			}
 		}
 	}
+	public ArrayList<ArrayList<Double>> getAllPersonalLambda() {
+		return allPersonalLambda;
+	}
 }
-
-

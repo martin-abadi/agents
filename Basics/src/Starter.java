@@ -17,7 +17,7 @@ public class Starter {
 	private static ArrayList<ArrayList <Integer>> costPerRun;
 	private static ArrayList<ArrayList <Integer>> costPerRunAnytime;
 	private static ArrayList<ArrayList <Integer>> costPerRunTheDifferent;
-	public static ArrayList<ArrayList <Integer>> costPerRunOfDifferentNeighbors;
+	protected static ArrayList<ArrayList <Integer>> costPerRunOfDifferentNeighbors;
 	private static ArrayList <Integer> costPerIteration;
 	private static ArrayList<ArrayList <Agent>> agentsToRemember;
 	private static ArrayList<ArrayList <MatrixContact>> martixToRemember;
@@ -30,7 +30,7 @@ public class Starter {
 	private static int numOfAgents;
 	private static int numOfVariables;
 	private static int numOfIterations;
-	public static int numOfRuns;
+	protected static int numOfRuns;
 	private static int numOfFreeze;
 	private static int amountOfDifferents;
 	private static int constrainsUB;			// upper bound of cost in a matrix
@@ -59,7 +59,7 @@ public class Starter {
 	private static String additionName;			// addition name for csv file output
 	private static final String COMMA_DELIMITER = ",";
 	private static final String NEW_LINE_SEPARATOR = "\n";
-	public static int anytimeHeight;
+	protected static int anytimeHeight;
 
 
 	public static void main(String[] args) {
@@ -91,16 +91,49 @@ public class Starter {
 		differentAgent = 0.1;
 		type2 = 1;
 		theParent = 5;						// 28,5
-		algorythmType = "p_agc";			// dsa, dsa-a,dsa-b, mgm, dba, acls, mcs-mgm, gca-mgm, goods-mgm, agc, sm_agc, p_agc
+		algorythmType = "p_agc";			// dsa,dsa-a,dsa-b,mgm,dba,acls,mcs-mgm,gca-mgm,goods-mgm,agc,sm_agc,p_agc,is_agc
 		socialVoteType = "cost";			// none, cost or binary
 		personalType = "normalized"; 		// portion, normalized
 		additionName = "";
 		lambdaSpreadType = "all_same";		// all_same, prior, uniform
 		lambdaType = "indicator";			// indicator, lam_zero
 		deltaType = "only_change";			// only_change, offer
-		vetorsAllNew();
+		vectorsAllNew();
 	}
-	private static void vetorsAllNew (){
+	private static void allNewForOne (){
+		lambda = 0.8;				// is gonna change
+		lambdaUB = 0.5;
+		gammaHistory = 0.3;
+		differentAgent = 0.8;
+		epsilonStep = 0.1;
+		algorythmType = "is_agc";		// dsa,dsa-a,dsa-b,mgm,dba,acls,mcs-mgm,gca-mgm,goods-mgm,agc,sm_agc,p_agc,is_agc
+		socialVoteType = "cost";		// none, cost or binary
+		personalType = "portion"; 		// portion, normalized
+		lambdaSpreadType = "all_same";	// all_same, prior, uniform
+		lambdaType = "indicator";			// indicator, lam_zero
+		deltaType = "offer";			// only_change, offer
+		tabooVote = true;
+		symmetric = false;
+		bestResponse = false;
+		numOfAgents = 20;
+		numOfVariables = 3;
+		constrainsUB = 20;
+		numOfIterations = 100;
+		numOfRuns = 5;
+		currentNumOfRun = 0;
+		numOfFreeze = 1;
+		p1 = 0.2;
+		p2 = 0.0;
+		p3 = 0.7;
+		p4 = 0.5;
+		type2 = 1;
+		theParent = 5;			// 28,5
+		additionName = personalType+"-"+lambdaSpreadType+"-"+lambdaType+"-"+deltaType+"-gamma_"+gammaHistory+"-lambda_"+lambda+"-lamUB_"+lambdaUB;
+		System.out.println("gamma: "+gammaHistory+", lambda: "+lambda+", lamUB: "+lambdaUB);
+		System.out.println(personalType+", "+lambdaSpreadType+", "+lambdaType+", "+deltaType);
+		vectorsAllNew();
+	}
+	private static void vectorsAllNew (){
 		costPerRun = new ArrayList<ArrayList<Integer>>();
 		costPerRunAnytime = new ArrayList<ArrayList<Integer>>();
 		costPerRunTheDifferent = new ArrayList<ArrayList<Integer>>();
@@ -109,35 +142,6 @@ public class Starter {
 		randomType = new Random();
 		randomIndiType = new Random();
 		nameOFPrint = createName(additionName);
-	}
-	private static void allNewForOne (){
-		lambda = 0.8;				// is gonna change
-		lambdaUB = 0.5;
-		gammaHistory = 0.3;
-		differentAgent = 0.8;
-		epsilonStep = 0.1;
-		algorythmType = "p_agc";		// dsa, dsa-a,dsa-b, mgm, dba, acls, mcs-mgm, gca-mgm, goods-mgm, agc, sm_agc, p_agc
-		socialVoteType = "cost";		// none, cost or binary
-		personalType = "portion"; 		// portion, normalized
-		lambdaSpreadType = "all_same";	// all_same, prior, uniform
-		tabooVote = true;
-		symmetric = false;
-		bestResponse = false;
-		numOfAgents = 100;
-		numOfVariables = 10;
-		constrainsUB = 100;
-		numOfIterations = 1000;
-		numOfRuns = 30;
-		currentNumOfRun = 0;
-		numOfFreeze = 1;
-		p1 = 0.1;
-		p2 = 0.0;
-		p3 = 0.7;
-		p4 = 0.5;
-		type2 = 1;
-		theParent = 5;			// 28,5
-		additionName = "step 0.1-portion";
-		vetorsAllNew();
 	}
 // ----------------------------------------------------- RUN FUNCTIONS -------------------------------------
 	private static void runAllTypes() {
@@ -178,14 +182,15 @@ public class Starter {
 			createAgents(algorythmType);
 			makeNeighbours();
 //		makeDifferentAgent(differentAgent);
-/**/		buildAnytimeStructer();
+//		buildAnytimeStructer();
 			activateBestResponse();
 			checkCurrentValue ();
 			runAlgorythm(algorythmType);
 //			keepAgentsInformation(nameOFPrint);
-/**/		finishAnytime();
+//		finishAnytime();
 		}
-/**/		printAnytime(nameOFPrint);
+//		printAnytime(nameOFPrint);
+
 //		printTheDifferent(additionName,nameOFPrint);
 		//		 	printSocial(nameOFDifferent,nameOFPrint);
 	}
@@ -364,7 +369,7 @@ public class Starter {
 			case "is_agc":
 				IS_AgcAgent a15 = new IS_AgcAgent(lambda,var,type2,tabooVote,socialVoteType,deltaType,lambdaType,gammaHistory,lambdaUB); //String is_Type,String lam_Type,double gama,double lamUB
 				allAgents.add(a15);
-				System.out.println("HEY, NEW AGENT: " + a15.getIdAgent() + " first variable: " +var);
+//				System.out.println("HEY, NEW AGENT: " + a15.getIdAgent() + " first variable: " +var);
 				personalType = "portion"; 		// portion, normalized
 				lambdaSpreadType = "all_same";	// all_same, prior, uniform
 				break;
@@ -443,7 +448,7 @@ public class Starter {
 		setCostPerIteration(count,currentNumOfRun-1);
 		
 //	System.out.println();
-//	System.out.println("TOTAL VALUE AT THE BEGINNING: " + count);
+/**/	System.out.println("^^^^^^^^^^^^^^^^^^^^^^ 	TOTAL VALUE AT THE BEGINNING: " + count+".	RUN NO.: "+currentNumOfRun);
 //	System.out.println("Neighbors of 45: ");
 //	for (int j=0;j<allAgents.get(theParent).myAgents.size();j++){
 //		System.out.println(allAgents.get(theParent).myAgents.get(j).idAgent + ", value: " + allAgents.get(theParent).myAgents.get(j).getValue());
@@ -492,8 +497,25 @@ public class Starter {
 //			System.out.println("END OF ITERATION: " + (currentNumOfIterations +1) + " TOTAL VALUE: " + currValue);
 //			System.out.print("---------------------------------------------------------------------	");
 //			System.out.println(currentNumOfIterations);
-		}		
+		}
+		System.out.print("-----------------------------------------------------------	");
+		System.out.println("END OF RUN: " + (currentNumOfRun));
+		findSmallest();
+		setLambdaPerRun();
 	}
+	private static void findSmallest() {
+		int	bb = 10000000;
+		int ii = 1;
+		for (int i=1; i<numOfIterations;i++){
+			if(costPerRun.get(currentNumOfRun-1).get(i)<bb){
+				bb=costPerRun.get(currentNumOfRun-1).get(i);
+				ii=i;
+			}
+		}
+		System.out.print("----------------------------------------- BEST VALUE: "+bb+".	ITERATION NO.: "+ii);
+		System.out.println();
+	}
+
 	private static void runSM_AGC () {
 		for (int i=0;i<numOfAgents;i++){((AgcAgent)allAgents.get(i)).calculateBaseLine();}
 		for (int i=0;i<numOfAgents;i++){((SM_AgcAgent)allAgents.get(i)).initializeArrayMessages();}
@@ -515,6 +537,14 @@ public class Starter {
 //			System.out.println("END OF ITERATION: " + (currentNumOfIterations +1) + " TOTAL VALUE: " + currValue);
 //			System.out.print("---------------------------------------------------------------------	");
 //			System.out.println(currentNumOfIterations);
+		}
+	}
+	private static void setLambdaPerRun() {
+		for(int i = 0; i<3;i++){
+			if(allAgents.get(i).myAgents.size()>0){
+				printPersonalLambda(additionName,nameOFPrint,i);
+				printPersonalValueOfNeighbor(additionName,nameOFPrint,i);
+			}
 		}
 	}
 	private static void runDSA () {
@@ -799,7 +829,7 @@ public class Starter {
 				}
 				fileWriter.append(NEW_LINE_SEPARATOR);
 			}
-			System.out.println("CSV file was created successfully !!!");
+			System.out.println("CSV file was created successfully !!! -- " + file1);
 		} catch (Exception e) {
 			System.out.println("Error in CsvFileWriter !!!");
 			e.printStackTrace();
@@ -812,6 +842,74 @@ public class Starter {
 				e.printStackTrace();
 			}             
 		}
+	}
+	private static void printPersonalLambda (String type,String algo,int agentNum) {
+//		for(int j=0;j<3;j++){ // j num of runs
+			FileWriter fileWriter = null;
+			String file1 = algo+"_"+type+"_"+"PerLam"+"_"+"AG_"+agentNum+"_Run_"+currentNumOfRun;
+			try {
+				fileWriter = new FileWriter(file1+".csv");
+				for(int m=0; m<allAgents.get(agentNum).myAgents.size();m++) { // number of neighbors
+					fileWriter.append(String.valueOf(allAgents.get(agentNum).myAgents.get(m).getIdAgent()));
+					fileWriter.append(COMMA_DELIMITER);
+				}
+				fileWriter.append(NEW_LINE_SEPARATOR);		// first line of number of agent
+				for(int i=0; i<numOfIterations;i++){
+					for(int n=0; n<allAgents.get(agentNum).myAgents.size();n++) {
+						fileWriter.append(String.valueOf(allAgents.get(agentNum).getAllPersonalLambda().get(n).get(i)));
+						fileWriter.append(COMMA_DELIMITER);
+					}
+					fileWriter.append(NEW_LINE_SEPARATOR);
+				}
+				System.out.println("CSV file was created successfully !!!");
+			} catch (Exception e) {
+				System.out.println("Error in CsvFileWriter !!!");
+				e.printStackTrace();
+			} finally {
+				try {
+					fileWriter.flush();
+					fileWriter.close();
+				} catch (IOException e) {
+					System.out.println("Error while flushing/closing fileWriter !!!");
+					e.printStackTrace();
+				}             
+			}
+//		}
+	}
+	private static void printPersonalValueOfNeighbor (String type,String algo,int agentNum) {
+//		for(int j=0;j<3;j++){ // j num of runs
+			FileWriter fileWriter = null;
+			String file1 = algo+"_"+type+"_"+"pERvAL"+"_"+"AG_"+agentNum+"_Run_"+currentNumOfRun;
+			try {
+				fileWriter = new FileWriter(file1+".csv");
+				for(int m=0; m<allAgents.get(agentNum).myAgents.size()+1;m++) { // number of neighbors
+					if(m==0){fileWriter.append(String.valueOf(allAgents.get(agentNum).getIdAgent()));}
+					else{fileWriter.append(String.valueOf(allAgents.get(agentNum).myAgents.get(m-1).getIdAgent()));}
+					fileWriter.append(COMMA_DELIMITER);
+				}
+				fileWriter.append(NEW_LINE_SEPARATOR);		// first line of number of agent
+				for(int i=0; i<numOfIterations;i++){
+					for(int n=0; n<allAgents.get(agentNum).myAgents.size()+1;n++) {
+						if(n==0){fileWriter.append(String.valueOf(allAgents.get(agentNum).getMyValues().get(i)));}
+						else{fileWriter.append(String.valueOf(allAgents.get(agentNum).myAgents.get(n-1).getMyValues().get(i)));}
+						fileWriter.append(COMMA_DELIMITER);
+					}
+					fileWriter.append(NEW_LINE_SEPARATOR);
+				}
+				System.out.println("CSV file was created successfully !!!");
+			} catch (Exception e) {
+				System.out.println("Error in CsvFileWriter !!!");
+				e.printStackTrace();
+			} finally {
+				try {
+					fileWriter.flush();
+					fileWriter.close();
+				} catch (IOException e) {
+					System.out.println("Error while flushing/closing fileWriter !!!");
+					e.printStackTrace();
+				}             
+			}
+//		}
 	}
 	private static String createName (String addition){
 		String ans = "";
@@ -931,8 +1029,7 @@ public class Starter {
 		else if (k==6){type2 = 6; epsilonStep=0.1;}
 		else if (k==7){type2 = 6; epsilonStep=0.25;}
 	}
-	private static void parametersAmountDifferentChange(int i, int s, int k) {
-		
+	private static void parametersAmountDifferentChange(int i, int s, int k) {	
 		if (i==1){algorythmType="agc";}
 		else if (i==2){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = false;}
 		else if (i==3){algorythmType="sm_agc";socialVoteType = "binary";tabooVote = true;}
@@ -999,4 +1096,7 @@ public class Starter {
 	
 	}
 
+	public static int getCurrentNumOfRun() {
+		return currentNumOfRun;
+	}
 }

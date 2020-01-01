@@ -23,6 +23,7 @@ public class Agent implements Runnable{
 	protected ArrayList <Character> nextView;
 	protected ArrayList <Character> lastView;
 	protected ArrayList<ArrayList <Character>> allMyViews;
+	protected ArrayList<ArrayList <Double>> allPersonalLambda;
 	protected ArrayList <Boolean> flagsCatcher;
 	protected char variable;
 	protected char nextVariable;
@@ -362,7 +363,9 @@ public class Agent implements Runnable{
 	public ArrayList<Integer> getFutureGainByPossibleVariable() {
 		return futureGainByPossibleVariable;
 	}
-	
+	public ArrayList<ArrayList<Double>> getAllPersonalLambda() {
+		return allPersonalLambda;
+	}
 	public ArrayList<Boolean> getFlagsCatcher() {
 		return flagsCatcher;
 	}

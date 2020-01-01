@@ -282,7 +282,8 @@ public class SM_AgcAgent extends AgcAgent{
 		if (flagsCatcher.size()==0 && (value-nextValue)<=baseLine){
 			variable = nextVariable;
 			Phi_t_minus_1 = 1;
-//			System.out.println();System.out.println("I AM A CHANGING WINNER: " + idAgent + " . baseline = " + baseLine + " . new amount: " + (value-nextValue));
+			if((this.idAgent==3||this.idAgent==4||this.idAgent==7||this.idAgent==13||this.idAgent==17||this.idAgent==19)&&(Starter.getCurrentNumOfRun()==2))
+				System.out.println("I AM CHANGING: " + idAgent + ".	Value: " + (value-nextValue) + "	--------- itearation: "+ (Starter.getCurrentNumOfIterations()+2));
 //			System.out.println();
 		}
 	}
@@ -290,18 +291,15 @@ public class SM_AgcAgent extends AgcAgent{
 	public int getVote_type() {
 		return vote_type;
 	}
-
 	public boolean isTaboo() {
 		return taboo;
 	}
-
 	public double getSocialGain() {
 		return socialGain;
 	}
 	public ArrayList<Double> SocialView() {
 		return nextSocialValue;
 	}
-
 	private int transferWeight(String a){
 		if (a=="binary")
 			return 1;
@@ -310,14 +308,12 @@ public class SM_AgcAgent extends AgcAgent{
 		else
 			return 0;
 	}
-
 	public void sendNeighborsMyValue (){
 		nextSocialValue.clear();
 		for (int i=0;i<myAgents.size();i++){
 			nextSocialValue.add(((SM_AgcAgent) myAgents.get(i)).getSocialGain());
 		}
-	}
-	
+	}	
 	public void sendNeighborsMyValidation (){
 		for (int i=0;i<myAgents.size();i++){
 			int costFrom1 = (myMatrixs.get(i).getSpecificValue(this.variable, nextView.get(i))-myMatrixs.get(i).getSpecificValue(this.variable, localView.get(i)));
@@ -351,9 +347,7 @@ public class SM_AgcAgent extends AgcAgent{
 		}
 		}
 	}
-
 	public ArrayList<ArrayList<Integer>> getOptionsToDecide() {
 		return optionsToDecide;
-	}
-	
+	}	
 }
