@@ -16,6 +16,7 @@ public class IS_AgcAgent extends SM_AgcAgent{
 	protected ArrayList<Double> personalBudget;
 	protected String deltaType;
 	protected String labmdaIndicatorType;
+	protected boolean lambdaChangerIndicator;
 	protected boolean valueHasChanged;
 	protected int theLastChanger;
 	protected double lambdaMax;
@@ -23,7 +24,7 @@ public class IS_AgcAgent extends SM_AgcAgent{
 	protected double gamma;							// opposite to weight of history
 	
 	//new private
-	public IS_AgcAgent(double lamb, char var, int type2,boolean tab,String weight,String del_Type,String lam_Type,double gama,double lamUB) {
+	public IS_AgcAgent(double lamb, char var, int type2,boolean tab,String weight,String del_Type,String lam_Type,double gama,double lamUB,boolean indi_cha) {
 		super(lamb, var, type2, tab, weight);
 		allPersonalLambda = new ArrayList<ArrayList <Double>> ();
 		previousLastModification = new ArrayList<Double> ();
@@ -35,6 +36,7 @@ public class IS_AgcAgent extends SM_AgcAgent{
 		personalBudget = new ArrayList<Double> ();
 		deltaType = del_Type;
 		labmdaIndicatorType = lam_Type;
+		lambdaChangerIndicator = indi_cha;
 		valueHasChanged = false;
 		theLastChanger = 1000;
 		lambdaUB = lamUB;
@@ -122,9 +124,13 @@ public class IS_AgcAgent extends SM_AgcAgent{
 		double lastLambda = individualLambda.get(ag);
 		double newLambda = 0.0;
 		switch (labmdaIndicatorType) {
-		case "indicator":
-			if(hasCh) newLambda = lastLambda-deltaOfIteration.get(ag);				// indicator if there was a change
-			else newLambda = lastLambda;
+		case "continued":
+			if(lambdaChangerIndicator){
+				if(hasCh) newLambda = lastLambda-deltaOfIteration.get(ag);				// indicator if there was a change
+				else newLambda = lastLambda;
+			}
+			else
+				newLambda = lastLambda-deltaOfIteration.get(ag);
 			break;
 		case "lam_zero":
 			newLambda = personalLambdaBeginning.get(ag) - deltaOfIteration.get(ag);	// look at first lambda of iteration zero
@@ -136,7 +142,7 @@ public class IS_AgcAgent extends SM_AgcAgent{
 		personalBudget.set(ag,(baseLine/(1+lambda))*(1+newLambda));					// taking back first calculation and bringing new calculation
 	}
 	private void makePrivateDelta(int ag, double deltaNew){
-//			System.out.print("Agent: " + this.getIdAgent() + ". My value: " + value + ". My Baseline: " +baseLine+ ". Personal Baselines: ");
+//		System.out.print("Agent: " + this.getIdAgent() + ". My value: " + value + ". My Baseline: " +baseLine+ ". Personal Baselines: ");
 		double lastDelta = deltaOfIteration.get(ag);
 		double newDelta = 0.0;
 		switch (deltaType) {
@@ -161,7 +167,7 @@ public class IS_AgcAgent extends SM_AgcAgent{
 	protected void taboo_preference(){
 		if (localView.size()>0)	{
 			for (int i=0;i<myAgents.size();i++){
-				//					System.out.print("Agent: " + this.getIdAgent() + ". To agent: " + myAgents.get(i).getIdAgent() + ". TABOO: ");
+//				System.out.print("Agent: " + this.getIdAgent() + ". To agent: " + myAgents.get(i).getIdAgent() + ". TABOO: ");
 				ArrayList <Character> my_taboos =  new ArrayList <Character> ();
 				for (int j=0;j<Starter.getNumOfVariables();j++){
 					char trying = (char) (j + 97);
@@ -212,9 +218,9 @@ public class IS_AgcAgent extends SM_AgcAgent{
 //					if((idAgent==3)&&(Starter.getCurrentNumOfRun()==2))System.out.println("COST: "+costFrom1+". val: "+myValues.get(Starter.getCurrentNumOfIterations()-1));
 					double wh = (double)costFrom1/myValues.get(Starter.getCurrentNumOfIterations()-1);
 					copyOfNextValueOffer.set(i,wh);
-					if((this.idAgent==3)&&(myAgents.get(i).getIdAgent()==13)&&(Starter.getCurrentNumOfRun()==2))
-						System.out.println("To neighbor: " + myAgents.get(i).getIdAgent() + ".	Value: " + (myValues.get(Starter.getCurrentNumOfIterations()-1))
-							+ ". His offer cost: " +costFrom1+", wh: "+wh+ "	--------- itearation: "+ (Starter.getCurrentNumOfIterations()+2));
+//					if((this.idAgent==3)&&(myAgents.get(i).getIdAgent()==13)&&(Starter.getCurrentNumOfRun()==2))
+//						System.out.println("To neighbor: " + myAgents.get(i).getIdAgent() + ".	Value: " + (myValues.get(Starter.getCurrentNumOfIterations()-1))
+//							+ ". His offer cost: " +costFrom1+", wh: "+wh+ "	--------- itearation: "+ (Starter.getCurrentNumOfIterations()+2));
 //					if((idAgent==3)&&(Starter.getCurrentNumOfRun()==2))System.out.println("%%CRAZY-VECTOR: "+copyOfNextValueOffer.get(i)+", whwhwhwh= "+wh);	
 					}
 				else {

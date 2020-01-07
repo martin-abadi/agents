@@ -46,6 +46,7 @@ public class Starter {
 	private static double gammaHistory;			// percent of weight of last iteration over history, dumping
 	private static double differentAgent;
 	private static double epsilonStep;
+	private static boolean lambdaChanIndicator;	// false for passive, true for active only if was changer for continued is_agent
 	private static boolean symmetric;			// symmetric or asymmetric problems
 	private static boolean tabooVote;
 	private static boolean bestResponse;		
@@ -54,7 +55,7 @@ public class Starter {
 	private static String nameOFPrint;			// name of csv file output
 	private static String socialVoteType;		// none, cost or binary
 	private static String personalType;			// portion, normalized
-	private static String deltaType;			// indicator, lam_zero
+	private static String deltaType;			// continued, lam_zero
 	private static String lambdaType;			// only_change, offer
 	private static String additionName;			// addition name for csv file output
 	private static final String COMMA_DELIMITER = ",";
@@ -66,7 +67,8 @@ public class Starter {
 //		runAllTypesAmountRange();
 //		runAllTypes();
 //		runAllTypesWithOneDifferent();
-		runNormalOnce();
+		runAllIndividual_Subjective();
+//		runNormalOnce();
 	}
 
 	private static void allNew (){
@@ -80,24 +82,27 @@ public class Starter {
 		numOfRuns = 30;
 		currentNumOfRun = 0;
 		numOfFreeze = 1;
+		epsilonStep = 0.1;
+		differentAgent = 0.1;
+		personalType = "normalized"; 		// portion, normalized
+		additionName = "";
 		p1 = 0.1;
-		p2 = 0.5;
+		p2 = 0.0;
 		p3 = 0.7;
 		p4 = 0.5;
-		epsilonStep = 0.1;
+		algorythmType = "is_agc";			// dsa,dsa-a,dsa-b,mgm,dba,acls,mcs-mgm,gca-mgm,goods-mgm,agc,sm_agc,p_agc,is_agc
+		socialVoteType = "cost";			// none, cost or binary
+		type2 = 1;
+
 		lambda = 0.8;
 		lambdaUB = 0.5;
 		gammaHistory = 0.3;
-		differentAgent = 0.1;
-		type2 = 1;
-		theParent = 5;						// 28,5
-		algorythmType = "p_agc";			// dsa,dsa-a,dsa-b,mgm,dba,acls,mcs-mgm,gca-mgm,goods-mgm,agc,sm_agc,p_agc,is_agc
-		socialVoteType = "cost";			// none, cost or binary
-		personalType = "normalized"; 		// portion, normalized
-		additionName = "";
+		theParent = 28;						// 28,5
+		
 		lambdaSpreadType = "all_same";		// all_same, prior, uniform
-		lambdaType = "indicator";			// indicator, lam_zero
+		lambdaType = "continued";			// continued,continued, lam_zero
 		deltaType = "only_change";			// only_change, offer
+		lambdaChanIndicator = true;			// continued is_agent indicator
 		vectorsAllNew();
 	}
 	private static void allNewForOne (){
@@ -110,8 +115,9 @@ public class Starter {
 		socialVoteType = "cost";		// none, cost or binary
 		personalType = "portion"; 		// portion, normalized
 		lambdaSpreadType = "all_same";	// all_same, prior, uniform
-		lambdaType = "indicator";			// indicator, lam_zero
+		lambdaType = "lam_zero";		// continued, lam_zero
 		deltaType = "offer";			// only_change, offer
+		lambdaChanIndicator = true;		// continued is_agent indicator
 		tabooVote = true;
 		symmetric = false;
 		bestResponse = false;
@@ -119,7 +125,7 @@ public class Starter {
 		numOfVariables = 3;
 		constrainsUB = 20;
 		numOfIterations = 100;
-		numOfRuns = 5;
+		numOfRuns = 3;
 		currentNumOfRun = 0;
 		numOfFreeze = 1;
 		p1 = 0.2;
@@ -144,6 +150,36 @@ public class Starter {
 		nameOFPrint = createName(additionName);
 	}
 // ----------------------------------------------------- RUN FUNCTIONS -------------------------------------
+	private static void runAllIndividual_Subjective() {
+		for (int l = 2; l<4;l++){				// k lambda size: 0.1,0.5,0.8 
+			for (int a = 1; a < 9; a++){		// a for algorithm of delta and lambda calculation
+				for (int g = 1; g < 7; g++){	// g for gamma history: 0.1,0.3,0.5,0.7,0.9
+					if (!((a>6)&&(g>1))){
+						allNew();
+						parametersAllIndividual(a,g,l);
+
+						nameOFPrint = createName(additionName);
+
+//						allNew();
+						for (currentNumOfRun =1;currentNumOfRun<=numOfRuns;currentNumOfRun++){
+							resetAll();
+							createAgents(algorythmType);
+							makeNeighbours();
+/**/						buildAnytimeStructer();
+							activateBestResponse();
+							checkCurrentValue ();
+							runAlgorythm(algorythmType);
+//							keepAgentsInformation(nameOFPrint);
+/**/						finishAnytime();
+						}
+						printAnytime(nameOFPrint);
+						printPersonalLambda(nameOFPrint,theParent);
+						printPersonalValueOfNeighbor(nameOFPrint,theParent);
+					}
+				}
+			}
+		}		
+	}
 	private static void runAllTypes() {
 		for (int k = 1; k<8;k++){				// k for type number, 6 needs step 0.1 and 0.25
 			for (int s = 0; s < 6; s++){		// s for algorithm
@@ -367,11 +403,9 @@ public class Starter {
 //				System.out.println("HEY, NEW AGENT: " + a14.getIdAgent() + " first variable: " +var);
 				break;
 			case "is_agc":
-				IS_AgcAgent a15 = new IS_AgcAgent(lambda,var,type2,tabooVote,socialVoteType,deltaType,lambdaType,gammaHistory,lambdaUB); //String is_Type,String lam_Type,double gama,double lamUB
+				IS_AgcAgent a15 = new IS_AgcAgent(lambda,var,type2,tabooVote,socialVoteType,deltaType,lambdaType,gammaHistory,lambdaUB,lambdaChanIndicator); //String is_Type,String lam_Type,double gama,double lamUB
 				allAgents.add(a15);
 //				System.out.println("HEY, NEW AGENT: " + a15.getIdAgent() + " first variable: " +var);
-				personalType = "portion"; 		// portion, normalized
-				lambdaSpreadType = "all_same";	// all_same, prior, uniform
 				break;
 			}
 		}
@@ -448,7 +482,7 @@ public class Starter {
 		setCostPerIteration(count,currentNumOfRun-1);
 		
 //	System.out.println();
-/**/	System.out.println("^^^^^^^^^^^^^^^^^^^^^^ 	TOTAL VALUE AT THE BEGINNING: " + count+".	RUN NO.: "+currentNumOfRun);
+//	System.out.println("^^^^^^^^^^^^^^^^^^^^^^ 	TOTAL VALUE AT THE BEGINNING: " + count+".	RUN NO.: "+currentNumOfRun);
 //	System.out.println("Neighbors of 45: ");
 //	for (int j=0;j<allAgents.get(theParent).myAgents.size();j++){
 //		System.out.println(allAgents.get(theParent).myAgents.get(j).idAgent + ", value: " + allAgents.get(theParent).myAgents.get(j).getValue());
@@ -498,10 +532,9 @@ public class Starter {
 //			System.out.print("---------------------------------------------------------------------	");
 //			System.out.println(currentNumOfIterations);
 		}
-		System.out.print("-----------------------------------------------------------	");
-		System.out.println("END OF RUN: " + (currentNumOfRun));
-		findSmallest();
-		setLambdaPerRun();
+//		System.out.print("-----------------------------------------------------------	");
+//		System.out.println("END OF RUN: " + (currentNumOfRun));
+//		findSmallest();
 	}
 	private static void findSmallest() {
 		int	bb = 10000000;
@@ -512,10 +545,17 @@ public class Starter {
 				ii=i;
 			}
 		}
-		System.out.print("----------------------------------------- BEST VALUE: "+bb+".	ITERATION NO.: "+ii);
-		System.out.println();
+//		System.out.print("----------------------------------------- BEST VALUE: "+bb+".	ITERATION NO.: "+ii);
+//		System.out.println();
 	}
-
+	private static void setLambdaPerRun() {
+		for(int i = 0; i<3;i++){
+			if(allAgents.get(i).myAgents.size()>0){
+				printPersonalLambda(nameOFPrint,i);
+				printPersonalValueOfNeighbor(nameOFPrint,i);
+			}
+		}
+	}
 	private static void runSM_AGC () {
 		for (int i=0;i<numOfAgents;i++){((AgcAgent)allAgents.get(i)).calculateBaseLine();}
 		for (int i=0;i<numOfAgents;i++){((SM_AgcAgent)allAgents.get(i)).initializeArrayMessages();}
@@ -537,14 +577,6 @@ public class Starter {
 //			System.out.println("END OF ITERATION: " + (currentNumOfIterations +1) + " TOTAL VALUE: " + currValue);
 //			System.out.print("---------------------------------------------------------------------	");
 //			System.out.println(currentNumOfIterations);
-		}
-	}
-	private static void setLambdaPerRun() {
-		for(int i = 0; i<3;i++){
-			if(allAgents.get(i).myAgents.size()>0){
-				printPersonalLambda(additionName,nameOFPrint,i);
-				printPersonalValueOfNeighbor(additionName,nameOFPrint,i);
-			}
 		}
 	}
 	private static void runDSA () {
@@ -843,10 +875,10 @@ public class Starter {
 			}             
 		}
 	}
-	private static void printPersonalLambda (String type,String algo,int agentNum) {
+	private static void printPersonalLambda (String algo,int agentNum) {
 //		for(int j=0;j<3;j++){ // j num of runs
 			FileWriter fileWriter = null;
-			String file1 = algo+"_"+type+"_"+"PerLam"+"_"+"AG_"+agentNum+"_Run_"+currentNumOfRun;
+			String file1 = algo+"_"+"PerLam"+"_"+"AG_"+agentNum+"_Run_"+currentNumOfRun;
 			try {
 				fileWriter = new FileWriter(file1+".csv");
 				for(int m=0; m<allAgents.get(agentNum).myAgents.size();m++) { // number of neighbors
@@ -876,10 +908,10 @@ public class Starter {
 			}
 //		}
 	}
-	private static void printPersonalValueOfNeighbor (String type,String algo,int agentNum) {
+	private static void printPersonalValueOfNeighbor (String algo,int agentNum) {
 //		for(int j=0;j<3;j++){ // j num of runs
 			FileWriter fileWriter = null;
-			String file1 = algo+"_"+type+"_"+"pERvAL"+"_"+"AG_"+agentNum+"_Run_"+currentNumOfRun;
+			String file1 = algo+"_"+"pERvAL"+"_"+"AG_"+agentNum+"_Run_"+currentNumOfRun;
 			try {
 				fileWriter = new FileWriter(file1+".csv");
 				for(int m=0; m<allAgents.get(agentNum).myAgents.size()+1;m++) { // number of neighbors
@@ -937,7 +969,17 @@ public class Starter {
 			else if (tabooVote==true && socialVoteType == "cost") ans = "P_AGC_T_CI-";
 			add = add+personalType+"-";
 		}
-		//P_AGC_T_CI-0.8-5-normalized-
+		else if (algorythmType=="is_agc"){
+			if((lambdaChanIndicator)&&(lambdaType == "continued"))		// )
+				ans = "IS_AGC-"+lambdaSpreadType+"-"+lambdaType+"-indicator-"+deltaType+"-gamma_"+gammaHistory+"-lambda_"+lambda+"-lamUB_"+lambdaUB;
+			else if (!(lambdaChanIndicator)&&(lambdaType == "continued"))
+				ans = "IS_AGC-"+lambdaSpreadType+"-"+lambdaType+"-no_indicator-"+deltaType+"-gamma_"+gammaHistory+"-lambda_"+lambda+"-lamUB_"+lambdaUB;
+			else 
+				ans = "IS_AGC-"+lambdaSpreadType+"-"+lambdaType+"-"+deltaType+"-gamma_"+gammaHistory+"-lambda_"+lambda+"-lamUB_"+lambdaUB;
+		}
+		else if (algorythmType=="agc"){
+			ans = "AGC-";
+		}
 		else ans = algorythmType + "-";
 		ans = ans + lambda + "-" + type2;
 		if (add!=""){ ans = ans + "-" + add;}
@@ -983,6 +1025,28 @@ public class Starter {
 		}
 	}
 // ----------------------------------------------------- FUNCTIONS BEFORE RUNNING ----------------------
+	private static void parametersAllIndividual (int a, int g, int l){	
+		//algorithm		
+		if 		(a==1){algorythmType="is_agc";lambdaType = "continued"; lambdaChanIndicator=true; deltaType = "only_change";}// portion, normalized
+		else if (a==2){algorythmType="is_agc";lambdaType = "continued"; lambdaChanIndicator=true; deltaType = "offer";}
+		else if (a==3){algorythmType="is_agc";lambdaType = "continued"; lambdaChanIndicator=false; deltaType = "only_change";}
+		else if (a==4){algorythmType="is_agc";lambdaType = "continued"; lambdaChanIndicator=false; deltaType = "offer";}// portion, normalized
+		else if (a==5){algorythmType="is_agc";lambdaType = "lam_zero"; deltaType = "only_change";}
+		else if (a==6){algorythmType="is_agc";lambdaType = "lam_zero"; deltaType = "offer";}
+		else if (a==7){algorythmType="agc";}
+		else if (a==8){algorythmType="sm_agc";}
+		//gamma history
+		if 		(g==1){gammaHistory=0.1;}
+		else if (g==2){gammaHistory=0.3;}
+		else if (g==3){gammaHistory=0.5;}
+		else if (g==4){gammaHistory=0.7;}
+		else if (g==5){gammaHistory=0.9;}
+		//lambda
+		if 		(l==1){lambda = 0.1;}
+		else if (l==2){lambda = 0.5;}
+		else if (l==3){lambda = 0.8;}
+		System.out.println("l="+l+", g="+g+", a="+a);
+	}
 	private static void parametersOneDifferentChange (int i,int s, int k){
 		
 		if (i==1){algorythmType="agc";}
@@ -1095,7 +1159,6 @@ public class Starter {
 		return lambdaSpreadType;
 	
 	}
-
 	public static int getCurrentNumOfRun() {
 		return currentNumOfRun;
 	}

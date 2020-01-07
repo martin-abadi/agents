@@ -282,8 +282,8 @@ public class SM_AgcAgent extends AgcAgent{
 		if (flagsCatcher.size()==0 && (value-nextValue)<=baseLine){
 			variable = nextVariable;
 			Phi_t_minus_1 = 1;
-			if((this.idAgent==3||this.idAgent==4||this.idAgent==7||this.idAgent==13||this.idAgent==17||this.idAgent==19)&&(Starter.getCurrentNumOfRun()==2))
-				System.out.println("I AM CHANGING: " + idAgent + ".	Value: " + (value-nextValue) + "	--------- itearation: "+ (Starter.getCurrentNumOfIterations()+2));
+//			if((this.idAgent==3||this.idAgent==4||this.idAgent==7||this.idAgent==13||this.idAgent==17||this.idAgent==19)&&(Starter.getCurrentNumOfRun()==2))
+//				System.out.println("I AM CHANGING: " + idAgent + ".	Value: " + (value-nextValue) + "	--------- itearation: "+ (Starter.getCurrentNumOfIterations()+2));
 //			System.out.println();
 		}
 	}
