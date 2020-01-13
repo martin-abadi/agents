@@ -2,6 +2,11 @@ import java.util.*;
 
 public class AgcAgent extends AclsAgent{
 	
+	protected ArrayList<ArrayList <Double>> allPersonalLambda;
+	protected ArrayList<Double> personalLambdaBeginning;
+	protected ArrayList<Double> individualLambda;
+	protected ArrayList<Double> personalBudget;
+	
 	protected int Phi_t_minus_1;
 	protected int type;
 	protected double baseLine;
@@ -11,7 +16,8 @@ public class AgcAgent extends AclsAgent{
 	protected double lambda;
 	protected double epsilon;
 	protected double epsilonStep;
-	
+	protected boolean individualsLambdasFlag;
+
 	public AgcAgent(double lamb, char var,int type2) {
 		super(var);
 		baseLine = 0;
@@ -23,8 +29,44 @@ public class AgcAgent extends AclsAgent{
 		Phi_t_minus_1 = 0;
 		epsilon = 0.5;
 		epsilonStep = 0.1;
+		individualsLambdasFlag = false;
+		allPersonalLambda = new ArrayList<ArrayList <Double>> ();
+		personalLambdaBeginning = new ArrayList<Double> ();
+		individualLambda = new ArrayList<Double> ();
+		personalBudget = new ArrayList<Double> ();
 	}
-	
+	public void initializeArrayMessages(){
+		if(myAgents.size()>0){			
+			determineLambdas();
+		}
+	}
+	protected void determineLambdas(){
+		for (int i=0;i<myAgents.size();i++){
+			double lam = lambda;
+			switch (Starter.getLambdaSpreadType()) {// all_same, prior, union
+			case "all_same":
+				lam = lambda;
+				break;
+			case "prior":
+				individualsLambdasFlag = true;
+				int ch = (int)(Starter.getRandomIndiType().nextDouble()*3);
+				if(ch==0) { lam = 0.1;}
+				else if(ch==1) { lam = 0.5;}
+				else { lam = 0.8;}
+				break;
+			case "uniform":
+				individualsLambdasFlag = true;
+				double ma = Starter.getRandomIndiType().nextDouble()*Starter.getLambdaUB()*2;
+				lam = ma + lambda - Starter.getLambdaUB();
+				break;
+			}
+//			System.out.println("Agent: " + this.getIdAgent()+ ". To neighbor: " + myAgents.get(i).getIdAgent() + ". my beginning LAMBDA is: " + lam) ;
+//			allPersonalLambda.get(i).add(lam);
+			personalLambdaBeginning.add(lam);
+			individualLambda.add(lam);
+			personalBudget.add(value*(lam+1));
+		}
+	}
 	public void calculateBaseLine(){
 		double discount = (value*lambda);
 		baseLine = value + discount;
@@ -78,24 +120,62 @@ public class AgcAgent extends AclsAgent{
 	
 	public void sendNeighborsMyValidation (){
 		if(nextNeighboursValue.size()>0){
+			if(!individualsLambdasFlag){
+				for (int i=0;i<myAgents.size();i++){
+					int costFrom1 = (myMatrixs.get(i).getSpecificValue(this.variable, nextView.get(i))-myMatrixs.get(i).getSpecificValue(this.variable, localView.get(i)));
+					if (value+costFrom1>baseLine){
+						nextNeighboursValue.set(i, -1);
+//					System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent() + ". AUCH, YOU HEART ME.");
+	
+					}
+				}
+				int index = nextNeighboursValue.indexOf(Collections.max(nextNeighboursValue));
+				int costFrom2 = (myMatrixs.get(index).getSpecificValue(this.variable, nextView.get(index))-myMatrixs.get(index).getSpecificValue(this.variable, localView.get(index)));
+//			System.out.println("Agent: " + this.getIdAgent() + ". To neighbor maybe winner: " + myAgents.get(index).getIdAgent() + ". my candidate: " + this.nextValue
+//			+ ". matrix location: " + this.variable + ", " + nextView.get(index)+ ". his improve: " + costFrom2) ;
+				for (int i=0;i<myAgents.size();i++){
+					if(i==index){
+						if (nextNeighboursValue.get(index)<=this.nextValue){
+							myAgents.get(i).getFlagsCatcher().add(false);
+//						System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent() + ". my candidate: " + this.nextValue
+//						+ ". BETTER THAN HIS VALUE: " + nextNeighboursValue.get(i));
+						}
+						else {
+							flagsCatcher.add(false);
+						}
+					}
+					else{
+						myAgents.get(i).getFlagsCatcher().add(false);		
+//					System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent()
+//					+ ". no validation from me.");
+		
+					}
+				}
+			}
+			else{sendNeighborsMyValidation2();}
+		}
+	}
+	private void sendNeighborsMyValidation2 (){
+		if(myAgents.size()>0){
 			for (int i=0;i<myAgents.size();i++){
+				personalBudget.set(i,(baseLine/(1+lambda))*(1+personalLambdaBeginning.get(i)));					// taking back first calculation and bringing new calculation
 				int costFrom1 = (myMatrixs.get(i).getSpecificValue(this.variable, nextView.get(i))-myMatrixs.get(i).getSpecificValue(this.variable, localView.get(i)));
-				if (value+costFrom1>baseLine){
+				if (value+costFrom1>personalBudget.get(i)){
 					nextNeighboursValue.set(i, -1);
-//				System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent() + ". AUCH, YOU HEART ME.");
-
+//						System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent() + ". AUCH, YOU HEART ME.");
 				}
 			}
 			int index = nextNeighboursValue.indexOf(Collections.max(nextNeighboursValue));
 			int costFrom2 = (myMatrixs.get(index).getSpecificValue(this.variable, nextView.get(index))-myMatrixs.get(index).getSpecificValue(this.variable, localView.get(index)));
-//		System.out.println("Agent: " + this.getIdAgent() + ". To neighbor maybe winner: " + myAgents.get(index).getIdAgent() + ". my candidate: " + this.nextValue
-//		+ ". matrix location: " + this.variable + ", " + nextView.get(index)+ ". his improve: " + costFrom2) ;
+
+//			System.out.println("Agent: " + this.getIdAgent() + ". To neighbor maybe winner: " + myAgents.get(index).getIdAgent() + ". my candidate: " + this.socialGain
+//			+ ". matrix location: " + this.variable + ", " + nextView.get(index)+ ". his improve: " + nextSocialValue.get(index)) ;
 			for (int i=0;i<myAgents.size();i++){
 				if(i==index){
 					if (nextNeighboursValue.get(index)<=this.nextValue){
 						myAgents.get(i).getFlagsCatcher().add(false);
-//					System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent() + ". my candidate: " + this.nextValue
-//					+ ". BETTER THAN HIS VALUE: " + nextNeighboursValue.get(i));
+//						System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent() + ". my candidate: " + this.socialGain
+//						+ ". BETTER THAN HIS VALUE: " + nextSocialValue.get(i));
 					}
 					else {
 						flagsCatcher.add(false);
@@ -103,9 +183,8 @@ public class AgcAgent extends AclsAgent{
 				}
 				else{
 					myAgents.get(i).getFlagsCatcher().add(false);		
-//				System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent()
-//				+ ". no validation from me.");
-	
+//					System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent()
+//					+ ". no validation from me.");
 				}
 			}
 		}

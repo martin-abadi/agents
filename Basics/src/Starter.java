@@ -99,7 +99,7 @@ public class Starter {
 		gammaHistory = 0.3;
 		theParent = 28;						// 28,5
 		
-		lambdaSpreadType = "all_same";		// all_same, prior, uniform
+		lambdaSpreadType = "prior";			// all_same, prior, uniform
 		lambdaType = "continued";			// continued,continued, lam_zero
 		deltaType = "only_change";			// only_change, offer
 		lambdaChanIndicator = true;			// continued is_agent indicator
@@ -151,34 +151,36 @@ public class Starter {
 	}
 // ----------------------------------------------------- RUN FUNCTIONS -------------------------------------
 	private static void runAllIndividual_Subjective() {
-		for (int l = 2; l<4;l++){				// k lambda size: 0.1,0.5,0.8 
-			for (int a = 1; a < 9; a++){		// a for algorithm of delta and lambda calculation
-				for (int g = 1; g < 7; g++){	// g for gamma history: 0.1,0.3,0.5,0.7,0.9
-					if (!((a>6)&&(g>1))){
-						allNew();
-						parametersAllIndividual(a,g,l);
-
-						nameOFPrint = createName(additionName);
-
-//						allNew();
-						for (currentNumOfRun =1;currentNumOfRun<=numOfRuns;currentNumOfRun++){
-							resetAll();
-							createAgents(algorythmType);
-							makeNeighbours();
-/**/						buildAnytimeStructer();
-							activateBestResponse();
-							checkCurrentValue ();
-							runAlgorythm(algorythmType);
-//							keepAgentsInformation(nameOFPrint);
-/**/						finishAnytime();
+		for (int s = 1; s<4;s++){					// s for spread of lambda among my neighbors: all_same, prior, uniform
+			for (int l = 1; l<4;l++){				// k lambda size: 0.1,0.5,0.8 
+				for (int a = 7; a < 9; a++){		// a for algorithm of delta and lambda calculation
+					for (int g = 1; g < 6; g++){	// g for gamma history: 0.1,0.3,0.5,0.7,0.9
+						if ((!((a>6)&&(g>1)))){
+							allNew();
+							parametersAllIndividual(a,g,l,s);
+	
+							nameOFPrint = createName(additionName);
+	
+	//						allNew();
+							for (currentNumOfRun =1;currentNumOfRun<=numOfRuns;currentNumOfRun++){
+								resetAll();
+								createAgents(algorythmType);
+								makeNeighbours();
+	/**/						buildAnytimeStructer();
+								activateBestResponse();
+								checkCurrentValue ();
+								runAlgorythm(algorythmType);
+	//							keepAgentsInformation(nameOFPrint);
+	/**/						finishAnytime();
+							}
+							printAnytime(nameOFPrint);
+							printPersonalLambda(nameOFPrint,theParent);
+							printPersonalValueOfNeighbor(nameOFPrint,theParent);
 						}
-						printAnytime(nameOFPrint);
-						printPersonalLambda(nameOFPrint,theParent);
-						printPersonalValueOfNeighbor(nameOFPrint,theParent);
 					}
 				}
 			}
-		}		
+		}
 	}
 	private static void runAllTypes() {
 		for (int k = 1; k<8;k++){				// k for type number, 6 needs step 0.1 and 0.25
@@ -512,7 +514,7 @@ public class Starter {
 	}
 	private static void runIS_AGC() {
 		for (int i=0;i<numOfAgents;i++){((AgcAgent)allAgents.get(i)).calculateBaseLine();}
-		for (int i=0;i<numOfAgents;i++){((SM_AgcAgent)allAgents.get(i)).initializeArrayMessages();}
+		for (int i=0;i<numOfAgents;i++){((AgcAgent)allAgents.get(i)).initializeArrayMessages();}
 		for (currentNumOfIterations=0; currentNumOfIterations<numOfIterations;currentNumOfIterations++){	
 //			System.out.println();
 			int currValue = 0;
@@ -536,29 +538,31 @@ public class Starter {
 //		System.out.println("END OF RUN: " + (currentNumOfRun));
 //		findSmallest();
 	}
-	private static void findSmallest() {
-		int	bb = 10000000;
-		int ii = 1;
-		for (int i=1; i<numOfIterations;i++){
-			if(costPerRun.get(currentNumOfRun-1).get(i)<bb){
-				bb=costPerRun.get(currentNumOfRun-1).get(i);
-				ii=i;
-			}
-		}
-//		System.out.print("----------------------------------------- BEST VALUE: "+bb+".	ITERATION NO.: "+ii);
-//		System.out.println();
-	}
-	private static void setLambdaPerRun() {
-		for(int i = 0; i<3;i++){
-			if(allAgents.get(i).myAgents.size()>0){
-				printPersonalLambda(nameOFPrint,i);
-				printPersonalValueOfNeighbor(nameOFPrint,i);
-			}
+	private static void runAGC () {
+		for (int i=0;i<numOfAgents;i++){((AgcAgent) allAgents.get(i)).calculateBaseLine();}
+		for (int i=0;i<numOfAgents;i++){((AgcAgent)allAgents.get(i)).initializeArrayMessages();}
+		for (currentNumOfIterations=0; currentNumOfIterations<numOfIterations;currentNumOfIterations++){	
+			//			System.out.println();
+			int currValue = 0;
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).sendNeighborsMyVariable();}
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).checkImprove();}
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).sendNeighborsMyValue();}
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).sendNeighborsMyNextView();}
+			for (int i=0;i<numOfAgents;i++){((AgcAgent) allAgents.get(i)).setBaseLine();}
+			for (int i=0;i<numOfAgents;i++){((AgcAgent) allAgents.get(i)).sendNeighborsMyValidation();}
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).setVariable();}
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).setValue();}
+			for (int i=0;i<numOfAgents;i++){allAgents.get(i).anytiming();}
+			for (int i=0;i<numOfAgents;i++){currValue = currValue + allAgents.get(i).getValue();}
+			setCostPerIteration(currValue,currentNumOfRun-1);
+//			System.out.println("END OF ITERATION: " + (currentNumOfIterations +1) + " TOTAL VALUE: " + currValue);
+//			System.out.print("---------------------------------------------------------------------	");
+//			System.out.println(currentNumOfIterations);
 		}
 	}
 	private static void runSM_AGC () {
 		for (int i=0;i<numOfAgents;i++){((AgcAgent)allAgents.get(i)).calculateBaseLine();}
-		for (int i=0;i<numOfAgents;i++){((SM_AgcAgent)allAgents.get(i)).initializeArrayMessages();}
+		for (int i=0;i<numOfAgents;i++){((AgcAgent)allAgents.get(i)).initializeArrayMessages();}
 		for (currentNumOfIterations=0; currentNumOfIterations<numOfIterations;currentNumOfIterations++){	
 //			System.out.println();
 			int currValue = 0;
@@ -698,27 +702,7 @@ public class Starter {
 //			System.out.println(currentNumOfIterations);
 		}
 	}
-	private static void runAGC () {
-		for (int i=0;i<numOfAgents;i++){((AgcAgent) allAgents.get(i)).calculateBaseLine();}
-		for (currentNumOfIterations=0; currentNumOfIterations<numOfIterations;currentNumOfIterations++){	
-			//			System.out.println();
-			int currValue = 0;
-			for (int i=0;i<numOfAgents;i++){allAgents.get(i).sendNeighborsMyVariable();}
-			for (int i=0;i<numOfAgents;i++){allAgents.get(i).checkImprove();}
-			for (int i=0;i<numOfAgents;i++){allAgents.get(i).sendNeighborsMyValue();}
-			for (int i=0;i<numOfAgents;i++){allAgents.get(i).sendNeighborsMyNextView();}
-			for (int i=0;i<numOfAgents;i++){((AgcAgent) allAgents.get(i)).setBaseLine();}
-			for (int i=0;i<numOfAgents;i++){((AgcAgent) allAgents.get(i)).sendNeighborsMyValidation();}
-			for (int i=0;i<numOfAgents;i++){allAgents.get(i).setVariable();}
-			for (int i=0;i<numOfAgents;i++){allAgents.get(i).setValue();}
-			for (int i=0;i<numOfAgents;i++){allAgents.get(i).anytiming();}
-			for (int i=0;i<numOfAgents;i++){currValue = currValue + allAgents.get(i).getValue();}
-			setCostPerIteration(currValue,currentNumOfRun-1);
-//			System.out.println("END OF ITERATION: " + (currentNumOfIterations +1) + " TOTAL VALUE: " + currValue);
-//			System.out.print("---------------------------------------------------------------------	");
-//			System.out.println(currentNumOfIterations);
-		}
-	}
+
 // ----------------------------------------------------- PRINTS ------------------------------------------
 	private static void print (String type) {
 		FileWriter fileWriter = null;
@@ -951,7 +935,7 @@ public class Starter {
 			else if (tabooVote==false && socialVoteType == "cost") ans = "SM_AGC_CI-";
 			else if (tabooVote==true && socialVoteType != "cost" && socialVoteType != "binary") ans = "SM_AGC_T-";
 			else if(tabooVote==true && socialVoteType == "binary") ans = "SM_AGC_T_BI-";
-			else if (tabooVote==true && socialVoteType == "cost") ans = "SM_AGC_T_CI-";
+			else if (tabooVote==true && socialVoteType == "cost") ans = "SM_AGC_T_CI-"+lambdaSpreadType+"-";
 		}
 		else if (algorythmType=="smpo_agc"){
 			if(tabooVote==false && socialVoteType == "binary") ans = "SMPO_AGC_BI-";
@@ -978,12 +962,32 @@ public class Starter {
 				ans = "IS_AGC-"+lambdaSpreadType+"-"+lambdaType+"-"+deltaType+"-gamma_"+gammaHistory+"-lambda_"+lambda+"-lamUB_"+lambdaUB;
 		}
 		else if (algorythmType=="agc"){
-			ans = "AGC-";
+			ans = "AGC-"+lambdaSpreadType+"-";
 		}
 		else ans = algorythmType + "-";
 		ans = ans + lambda + "-" + type2;
 		if (add!=""){ ans = ans + "-" + add;}
 		return ans;
+	}
+	private static void findSmallest() {
+		int	bb = 10000000;
+		int ii = 1;
+		for (int i=1; i<numOfIterations;i++){
+			if(costPerRun.get(currentNumOfRun-1).get(i)<bb){
+				bb=costPerRun.get(currentNumOfRun-1).get(i);
+				ii=i;
+			}
+		}
+//		System.out.print("----------------------------------------- BEST VALUE: "+bb+".	ITERATION NO.: "+ii);
+//		System.out.println();
+	}
+	private static void setLambdaPerRun() {
+		for(int i = 0; i<3;i++){
+			if(allAgents.get(i).myAgents.size()>0){
+				printPersonalLambda(nameOFPrint,i);
+				printPersonalValueOfNeighbor(nameOFPrint,i);
+			}
+		}
 	}
 // ----------------------------------------------------- FUNCTIONS END RUNNING -------------------------
 	private static void finishAnytime(){
@@ -1025,7 +1029,7 @@ public class Starter {
 		}
 	}
 // ----------------------------------------------------- FUNCTIONS BEFORE RUNNING ----------------------
-	private static void parametersAllIndividual (int a, int g, int l){	
+	private static void parametersAllIndividual (int a, int g, int l,int s){	
 		//algorithm		
 		if 		(a==1){algorythmType="is_agc";lambdaType = "continued"; lambdaChanIndicator=true; deltaType = "only_change";}// portion, normalized
 		else if (a==2){algorythmType="is_agc";lambdaType = "continued"; lambdaChanIndicator=true; deltaType = "offer";}
@@ -1045,7 +1049,12 @@ public class Starter {
 		if 		(l==1){lambda = 0.1;}
 		else if (l==2){lambda = 0.5;}
 		else if (l==3){lambda = 0.8;}
-		System.out.println("l="+l+", g="+g+", a="+a);
+		//spread lambda among my neighbors
+		if 		(s==1){lambdaSpreadType = "all_same";}
+		else if (s==2){lambdaSpreadType = "prior";}
+		else if (s==3){lambdaSpreadType = "uniform";}
+		
+		System.out.println("s="+s+", l="+l+", a="+a+", g="+g);
 	}
 	private static void parametersOneDifferentChange (int i,int s, int k){
 		
@@ -1161,5 +1170,9 @@ public class Starter {
 	}
 	public static int getCurrentNumOfRun() {
 		return currentNumOfRun;
+	}
+
+	public static double getLambdaUB() {
+		return lambdaUB;
 	}
 }

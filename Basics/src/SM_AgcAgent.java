@@ -236,6 +236,7 @@ public class SM_AgcAgent extends AgcAgent{
 					vote_messages.get(i).put(trying, 0);
 				}
 			}
+			determineLambdas();
 		}
 	}
 	private ArrayList<Double> normalizePreferences (ArrayList<Double> pref){
@@ -315,36 +316,75 @@ public class SM_AgcAgent extends AgcAgent{
 		}
 	}	
 	public void sendNeighborsMyValidation (){
+		if(myAgents.size()>0){
+			if(!individualsLambdasFlag){
+				for (int i=0;i<myAgents.size();i++){
+					int costFrom1 = (myMatrixs.get(i).getSpecificValue(this.variable, nextView.get(i))-myMatrixs.get(i).getSpecificValue(this.variable, localView.get(i)));
+					if (value+costFrom1>baseLine){
+						nextSocialValue.set(i, -1.0);
+//						System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent() + ". AUCH, YOU HEART ME.");
+					}
+				}
+				if(myAgents.size()>0){
+					int index = nextSocialValue.indexOf(Collections.max(nextSocialValue));
+					int costFrom2 = (myMatrixs.get(index).getSpecificValue(this.variable, nextView.get(index))-myMatrixs.get(index).getSpecificValue(this.variable, localView.get(index)));
+					
+//					System.out.println("Agent: " + this.getIdAgent() + ". To neighbor maybe winner: " + myAgents.get(index).getIdAgent() + ". my candidate: " + this.socialGain
+//					+ ". matrix location: " + this.variable + ", " + nextView.get(index)+ ". his improve: " + nextSocialValue.get(index)) ;
+					for (int i=0;i<myAgents.size();i++){
+						if(i==index){
+							if (nextSocialValue.get(index)<this.socialGain){
+								myAgents.get(i).getFlagsCatcher().add(false);
+//								System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent() + ". my candidate: " + this.socialGain
+//								+ ". BETTER THAN HIS VALUE: " + nextSocialValue.get(i));
+							}
+							else {
+								flagsCatcher.add(false);
+							}
+						}
+						else{
+							myAgents.get(i).getFlagsCatcher().add(false);		
+//							System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent()
+//							+ ". no validation from me.");
+						}
+					}
+				}
+			}
+			else{sendNeighborsMyValidation2();}
+		}
+	}
+	private void sendNeighborsMyValidation2 (){
 		for (int i=0;i<myAgents.size();i++){
+			personalBudget.set(i,(baseLine/(1+lambda))*(1+personalLambdaBeginning.get(i)));					// taking back first calculation and bringing new calculation
 			int costFrom1 = (myMatrixs.get(i).getSpecificValue(this.variable, nextView.get(i))-myMatrixs.get(i).getSpecificValue(this.variable, localView.get(i)));
-			if (value+costFrom1>baseLine){
+			if (value+costFrom1>personalBudget.get(i)){
 				nextSocialValue.set(i, -1.0);
-//				System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent() + ". AUCH, YOU HEART ME.");
+//					System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent() + ". AUCH, YOU HEART ME.");
 			}
 		}
 		if(myAgents.size()>0){
-		int index = nextSocialValue.indexOf(Collections.max(nextSocialValue));
-		int costFrom2 = (myMatrixs.get(index).getSpecificValue(this.variable, nextView.get(index))-myMatrixs.get(index).getSpecificValue(this.variable, localView.get(index)));
-		
-//		System.out.println("Agent: " + this.getIdAgent() + ". To neighbor maybe winner: " + myAgents.get(index).getIdAgent() + ". my candidate: " + this.socialGain
-//		+ ". matrix location: " + this.variable + ", " + nextView.get(index)+ ". his improve: " + nextSocialValue.get(index)) ;
-		for (int i=0;i<myAgents.size();i++){
-			if(i==index){
-				if (nextSocialValue.get(index)<this.socialGain){
-					myAgents.get(i).getFlagsCatcher().add(false);
-//					System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent() + ". my candidate: " + this.socialGain
-//					+ ". BETTER THAN HIS VALUE: " + nextSocialValue.get(i));
+			int index = nextSocialValue.indexOf(Collections.max(nextSocialValue));
+			int costFrom2 = (myMatrixs.get(index).getSpecificValue(this.variable, nextView.get(index))-myMatrixs.get(index).getSpecificValue(this.variable, localView.get(index)));
+			
+//			System.out.println("Agent: " + this.getIdAgent() + ". To neighbor maybe winner: " + myAgents.get(index).getIdAgent() + ". my candidate: " + this.socialGain
+//			+ ". matrix location: " + this.variable + ", " + nextView.get(index)+ ". his improve: " + nextSocialValue.get(index)) ;
+			for (int i=0;i<myAgents.size();i++){
+				if(i==index){
+					if (nextSocialValue.get(index)<this.socialGain){
+						myAgents.get(i).getFlagsCatcher().add(false);
+//						System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent() + ". my candidate: " + this.socialGain
+//						+ ". BETTER THAN HIS VALUE: " + nextSocialValue.get(i));
+					}
+					else {
+						flagsCatcher.add(false);
+					}
 				}
-				else {
-					flagsCatcher.add(false);
+				else{
+					myAgents.get(i).getFlagsCatcher().add(false);		
+//					System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent()
+//					+ ". no validation from me.");
 				}
 			}
-			else{
-				myAgents.get(i).getFlagsCatcher().add(false);		
-//				System.out.println("Agent: " + this.getIdAgent() + ". To neighbor: " + myAgents.get(i).getIdAgent()
-//				+ ". no validation from me.");
-			}
-		}
 		}
 	}
 	public ArrayList<ArrayList<Integer>> getOptionsToDecide() {

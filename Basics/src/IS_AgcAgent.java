@@ -67,7 +67,7 @@ public class IS_AgcAgent extends SM_AgcAgent{
 		lastModification.add(0.0);
 		deltaOfIteration.add(0.0);
 	}
-	private void determineLambdas(){
+	protected void determineLambdas(){
 		for (int i=0;i<myAgents.size();i++){
 			double lam = lambda;
 			switch (Starter.getLambdaSpreadType()) {// all_same, prior, union
