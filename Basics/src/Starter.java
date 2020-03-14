@@ -72,7 +72,6 @@ public class Starter {
 	}
 
 	private static void allNew (){
-		tabooVote = true;
 		symmetric = false;
 		bestResponse = true;
 		numOfAgents = 100;
@@ -90,9 +89,10 @@ public class Starter {
 		p2 = 0.0;
 		p3 = 0.7;
 		p4 = 0.5;
-		algorythmType = "is_agc";			// dsa,dsa-a,dsa-b,mgm,dba,acls,mcs-mgm,gca-mgm,goods-mgm,agc,sm_agc,p_agc,is_agc
-		socialVoteType = "cost";			// none, cost or binary
+		algorythmType = "is_agc";			// dsa,dsa-a,dsa-b,mgm,dba,acls,mcs-mgm,gca-mgm,goods-mgm,agc,sm_agc,p_agc,is_agc,is_n_agc
+		socialVoteType = "binary";			// none, cost or binary
 		type2 = 1;
+		tabooVote = false;
 
 		lambda = 0.8;
 		lambdaUB = 0.5;
@@ -153,9 +153,9 @@ public class Starter {
 	private static void runAllIndividual_Subjective() {
 		for (int s = 1; s<4;s++){					// s for spread of lambda among my neighbors: all_same, prior, uniform
 			for (int l = 1; l<4;l++){				// k lambda size: 0.1,0.5,0.8 
-				for (int a = 7; a < 9; a++){		// a for algorithm of delta and lambda calculation
+				for (int a = 8; a < 13; a++){		// a for algorithm of delta and lambda calculation
 					for (int g = 1; g < 6; g++){	// g for gamma history: 0.1,0.3,0.5,0.7,0.9
-						if ((!((a>6)&&(g>1)))){
+						if ((!((a>12)&&(g>1)))){
 							allNew();
 							parametersAllIndividual(a,g,l,s);
 	
@@ -409,6 +409,10 @@ public class Starter {
 				allAgents.add(a15);
 //				System.out.println("HEY, NEW AGENT: " + a15.getIdAgent() + " first variable: " +var);
 				break;
+			case "is_n_agc":
+				IS_N_AgcAgent a16 = new IS_N_AgcAgent (lambda,var,type2,deltaType,lambdaType,gammaHistory,lambdaUB,lambdaChanIndicator);
+				allAgents.add(a16);
+				break;
 			}
 		}
 	}
@@ -503,7 +507,7 @@ public class Starter {
 			runACLS();
 		if (type == "mcs-mgm" || type == "gca-mgm")
 			runMCS_MGM();
-		if (type == "agc"|| type == "t-agc")
+		if (type == "agc"|| type == "t-agc"||type == "is_n_agc")
 			runAGC();
 		if (type == "sm_agc" ||type == "p_agc" || type == "smpo_agc")
 			runSM_AGC();
@@ -870,7 +874,7 @@ public class Starter {
 					fileWriter.append(COMMA_DELIMITER);
 				}
 				fileWriter.append(NEW_LINE_SEPARATOR);		// first line of number of agent
-				for(int i=0; i<numOfIterations;i++){
+				for(int i=0; i<numOfIterations-1;i++){
 					for(int n=0; n<allAgents.get(agentNum).myAgents.size();n++) {
 						fileWriter.append(String.valueOf(allAgents.get(agentNum).getAllPersonalLambda().get(n).get(i)));
 						fileWriter.append(COMMA_DELIMITER);
@@ -936,6 +940,7 @@ public class Starter {
 			else if (tabooVote==true && socialVoteType != "cost" && socialVoteType != "binary") ans = "SM_AGC_T-";
 			else if(tabooVote==true && socialVoteType == "binary") ans = "SM_AGC_T_BI-";
 			else if (tabooVote==true && socialVoteType == "cost") ans = "SM_AGC_T_CI-"+lambdaSpreadType+"-";
+			else if (tabooVote==false && socialVoteType == "none") ans = "SM_AGC-";
 		}
 		else if (algorythmType=="smpo_agc"){
 			if(tabooVote==false && socialVoteType == "binary") ans = "SMPO_AGC_BI-";
@@ -953,13 +958,15 @@ public class Starter {
 			else if (tabooVote==true && socialVoteType == "cost") ans = "P_AGC_T_CI-";
 			add = add+personalType+"-";
 		}
-		else if (algorythmType=="is_agc"){
+		else if (algorythmType=="is_agc"||algorythmType=="is_n_agc"){
+			String algo ="";
+			if(algorythmType=="is_agc"){algo="IS_AGC-";} else if(algorythmType=="is_n_agc"){algo="IS_N_AGC-";}
 			if((lambdaChanIndicator)&&(lambdaType == "continued"))		// )
-				ans = "IS_AGC-"+lambdaSpreadType+"-"+lambdaType+"-indicator-"+deltaType+"-gamma_"+gammaHistory+"-lambda_"+lambda+"-lamUB_"+lambdaUB;
+				ans = algo+lambdaSpreadType+"-"+lambdaType+"-indicator-"+deltaType+"-gamma_"+gammaHistory+"-lambda_"+lambda+"-lamUB_"+lambdaUB;
 			else if (!(lambdaChanIndicator)&&(lambdaType == "continued"))
-				ans = "IS_AGC-"+lambdaSpreadType+"-"+lambdaType+"-no_indicator-"+deltaType+"-gamma_"+gammaHistory+"-lambda_"+lambda+"-lamUB_"+lambdaUB;
+				ans = algo+lambdaSpreadType+"-"+lambdaType+"-no_indicator-"+deltaType+"-gamma_"+gammaHistory+"-lambda_"+lambda+"-lamUB_"+lambdaUB;
 			else 
-				ans = "IS_AGC-"+lambdaSpreadType+"-"+lambdaType+"-"+deltaType+"-gamma_"+gammaHistory+"-lambda_"+lambda+"-lamUB_"+lambdaUB;
+				ans = algo+lambdaSpreadType+"-"+lambdaType+"-"+deltaType+"-gamma_"+gammaHistory+"-lambda_"+lambda+"-lamUB_"+lambdaUB;
 		}
 		else if (algorythmType=="agc"){
 			ans = "AGC-"+lambdaSpreadType+"-";
@@ -1037,8 +1044,14 @@ public class Starter {
 		else if (a==4){algorythmType="is_agc";lambdaType = "continued"; lambdaChanIndicator=false; deltaType = "offer";}// portion, normalized
 		else if (a==5){algorythmType="is_agc";lambdaType = "lam_zero"; deltaType = "only_change";}
 		else if (a==6){algorythmType="is_agc";lambdaType = "lam_zero"; deltaType = "offer";}
-		else if (a==7){algorythmType="agc";}
-		else if (a==8){algorythmType="sm_agc";}
+		else if (a==7){algorythmType="is_n_agc";lambdaType = "continued"; lambdaChanIndicator=true; deltaType = "only_change";}// portion, normalized
+		else if (a==8){algorythmType="is_n_agc";lambdaType = "continued"; lambdaChanIndicator=true; deltaType = "offer";}
+		else if (a==9){algorythmType="is_n_agc";lambdaType = "continued"; lambdaChanIndicator=false; deltaType = "only_change";}
+		else if (a==10){algorythmType="is_n_agc";lambdaType = "continued"; lambdaChanIndicator=false; deltaType = "offer";}// portion, normalized
+		else if (a==11){algorythmType="is_n_agc";lambdaType = "lam_zero"; deltaType = "only_change";}
+		else if (a==12){algorythmType="is_n_agc";lambdaType = "lam_zero"; deltaType = "offer";}
+		else if (a==13){algorythmType="agc";}
+		else if (a==14){algorythmType="sm_agc";}
 		//gamma history
 		if 		(g==1){gammaHistory=0.1;}
 		else if (g==2){gammaHistory=0.3;}
